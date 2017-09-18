@@ -2,6 +2,7 @@ package cn.kanejin.webop.operation;
 
 import cn.kanejin.webop.Constants;
 import cn.kanejin.webop.cache.WebopCacheManager;
+import cn.kanejin.webop.util.WebUtils;
 import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import static cn.kanejin.commons.util.StringUtils.isEmpty;
-import static cn.kanejin.commons.util.StringUtils.isNotEmpty;
 
 /**
  * @version $Id: OperationMapping.java 168 2017-09-15 07:51:46Z Kane $
@@ -51,7 +49,7 @@ public class OperationMapping {
 	}
 
 	public Operation getOperation(HttpServletRequest req) {
-		String uri = parseURIPath(req);
+		String uri = WebUtils.parseRequestURI(req);
 
 		// Direct match
 		Operation op = ops.get(uri);
@@ -96,31 +94,6 @@ public class OperationMapping {
 
 		return op;
 	}
-
-	private String parseURIPath(HttpServletRequest req) {
-
-		String uri = req.getRequestURI();
-		if (isEmpty(uri)) {
-			return "/index";
-		}
-
-		String contextPath = req.getContextPath();
-		if (isNotEmpty(contextPath) && uri.startsWith(contextPath)) {
-			uri = uri.substring(contextPath.length());
-		}
-
-		uri = uri.replaceAll("\\/\\/", "/");
-
-		if (!uri.startsWith("/")) {
-			uri = "/" + uri;
-		}
-
-		if (uri.endsWith("/"))
-			uri = uri.substring(0, uri.length() - 1);
-
-		return uri;
-	}
-
 
 	private boolean match(String pattern, String uri) {
 		if (pattern == null || pattern.isEmpty() || uri == null || uri.isEmpty())

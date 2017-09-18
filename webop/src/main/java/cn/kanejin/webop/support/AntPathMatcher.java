@@ -47,6 +47,85 @@ public class AntPathMatcher {
         }
     }
 
+    /**
+     * 判断模板是否包含通配符
+     *
+     * @param antPattern
+     * @return
+     */
+    private static boolean isPattern(String antPattern) {
+        return antPattern.contains("?") || antPattern.contains("*");
+    }
+
+    /**
+     * 把Ant-style的通配符转换成正则表达式
+     *
+     * @param antPattern
+     * @return
+     */
+    private static String toRegex(String antPattern) {
+
+        String regexPattern = antPattern.replaceAll("\\\\", "/");
+        regexPattern = regexPattern.replaceAll("\\.", "\\\\.");
+        regexPattern = regexPattern.replaceAll("\\?", "[^/]");
+
+        regexPattern = replaceSingleStar(regexPattern);
+
+        regexPattern = regexPattern.replaceAll("\\*\\*/", "([^/]+/)*");
+        regexPattern = regexPattern.replaceAll("/\\*\\*", "/.*");
+
+        return regexPattern;
+    }
+
+    /**
+     * 用递归把模板中单独的'*'更换成"[^/]+"
+     *
+     * @param pattern 模板
+     * @return
+     */
+    private static String replaceSingleStar(String pattern) {
+        int index = indexOfSingleStar(pattern);
+        if (index < 0) {
+            return pattern;
+        }
+
+        String prefix = (index == 0) ? "" : pattern.substring(0, index);
+        String suffix = (index == pattern.length() - 1) ? "" : pattern.substring(index + 1);
+
+        return replaceSingleStar(prefix + "[^/]+" + suffix);
+    }
+
+    /**
+     * 获取模板中单独的'*'的下标
+     *
+     * @param pattern 模板
+     * @return
+     */
+    private static int indexOfSingleStar(String pattern) {
+
+        for (int i = 0; i < pattern.length(); i++) {
+            if (pattern.charAt(i) == '*') {
+                // 看看左侧是否还是*
+                if (i - 1 >= 0) {
+                    if (pattern.charAt(i - 1) == '*') {
+                        continue;
+                    }
+                }
+
+                // 看看右侧是否还是*
+                if (i + 1 < pattern.length()) {
+                    if (pattern.charAt(i + 1) == '*') {
+                        continue;
+                    }
+                }
+
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     public static void main(String[] args) {
         String pattern = "view/hello?.jsp";
 
@@ -97,63 +176,5 @@ public class AntPathMatcher {
         System.out.println(AntPathMatcher.matches(pattern, "com/example/foo/company/department/A/World.java"));
         System.out.println(AntPathMatcher.matches(pattern, "com/example/foo/department/A/Hello.java"));
         System.out.println(AntPathMatcher.matches(pattern, "com/example/foo/company/department/A/World.class"));
-    }
-
-    private static boolean isPattern(String antPattern) {
-        return antPattern.contains("?") || antPattern.contains("*");
-
-    }
-
-    private static String toRegex(String antPattern) {
-
-        String regexPattern = antPattern.replaceAll("\\\\", "/");
-        regexPattern = regexPattern.replaceAll("\\.", "\\\\.");
-        regexPattern = regexPattern.replaceAll("\\?", "[^/]");
-
-        regexPattern = replaceSingleStar(regexPattern);
-
-        regexPattern = regexPattern.replaceAll("\\*\\*/", "([^/]+/)*");
-        regexPattern = regexPattern.replaceAll("/\\*\\*", "/.*");
-
-        System.out.println(antPattern + " => " + regexPattern);
-
-        return regexPattern;
-    }
-
-    private static String replaceSingleStar(String pattern) {
-        int index = indexOfSingleStar(pattern);
-        if (index < 0) {
-            return pattern;
-        }
-
-        String prefix = (index == 0) ? "" : pattern.substring(0, index);
-        String suffix = (index == pattern.length() - 1) ? "" : pattern.substring(index + 1);
-
-        return replaceSingleStar(prefix + "[^/]+" + suffix);
-    }
-
-    private static int indexOfSingleStar(String pattern) {
-
-        for (int i = 0; i < pattern.length(); i++) {
-            if (pattern.charAt(i) == '*') {
-                // 看看左侧是否还是*
-                if (i - 1 >= 0) {
-                    if (pattern.charAt(i - 1) == '*') {
-                        continue;
-                    }
-                }
-
-                // 看看右侧是否还是*
-                if (i + 1 < pattern.length()) {
-                    if (pattern.charAt(i + 1) == '*') {
-                        continue;
-                    }
-                }
-
-                return i;
-            }
-        }
-
-        return -1;
     }
 }

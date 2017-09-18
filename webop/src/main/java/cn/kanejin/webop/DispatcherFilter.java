@@ -5,6 +5,7 @@ import cn.kanejin.webop.operation.OperationContext;
 import cn.kanejin.webop.operation.OperationContextImpl;
 import cn.kanejin.webop.operation.OperationMapping;
 import cn.kanejin.webop.support.AntPathMatcher;
+import cn.kanejin.webop.util.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cn.kanejin.commons.util.StringUtils.*;
+import static cn.kanejin.commons.util.StringUtils.isNotBlank;
 
 /**
  * @version $Id: MultipartFormdataFilter.java 115 2016-03-15 06:34:36Z Kane $
@@ -85,7 +86,7 @@ public class DispatcherFilter implements Filter {
 		if (ignorePatterns == null)
 			return false;
 
-		String uri = parseURIPath(req);
+		String uri = WebUtils.parseRequestURI(req);
 
 		for (String pattern : ignorePatterns) {
 			if (AntPathMatcher.matches(pattern, uri))
@@ -93,30 +94,6 @@ public class DispatcherFilter implements Filter {
 		}
 
 		return false;
-	}
-
-	private String parseURIPath(HttpServletRequest req) {
-
-		String uri = req.getRequestURI();
-		if (isEmpty(uri)) {
-			return "/";
-		}
-
-		String contextPath = req.getContextPath();
-		if (isNotEmpty(contextPath) && uri.startsWith(contextPath)) {
-			uri = uri.substring(contextPath.length());
-		}
-
-		uri = uri.replaceAll("//", "/");
-
-		if (!uri.startsWith("/")) {
-			uri = "/" + uri;
-		}
-
-		if (uri.endsWith("/"))
-			uri = uri.substring(0, uri.length() - 1);
-
-		return uri;
 	}
 
 }
