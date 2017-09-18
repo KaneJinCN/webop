@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<webop-config xmlns="http://www.kanejin.cn/schema/webop"
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://www.kanejin.cn/schema/webop http://www.kanejin.cn/schema/webop.xsd">
+
+	<operation uri="/sample/forward" name="Forward Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<forward>的一个示例
+		]]>
+		</description>
+		<interceptor ref="helloInterceptor" />
+		<interceptor ref="worldInterceptor" />
+		<step id="stepToForwardPage"
+			class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><forward page="/jsp/sample/forward.jsp"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+
+	<operation uri="/sample/redirect" name="Redirect Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<redirect>的一个示例
+		]]>
+		</description>
+		<interceptor ref="worldInterceptor" />
+		<interceptor ref="helloInterceptor" />
+		<step id="stepToForwardPage"
+			class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><redirect page="/jsp/sample/redirect.jsp"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+
+	<operation uri="/sample/next" name="Next Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<next>的一个示例
+		]]>
+		</description>
+		<step id="stepNext"
+			class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><next/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+		<step id="stepNext2"
+			class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><forward page="/jsp/sample/next.jsp"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+
+	<operation uri="/sample/step" name="Step Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<step>的一个示例
+		]]>
+		</description>
+		<step id="stepNext"
+			class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><step id="stepNext2" /></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+		<step id="stepNext2"
+			class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><forward page="/jsp/sample/step.jsp"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+
+	<operation uri="/sample/text" name="Forward Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<text>的一个示例，直接返回一个字符串
+		]]>
+		</description>
+		<step id="stepToForwardPage"
+			class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><text value="Hello World"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+
+	<operation uri="/sample/response" name="Forward Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<response>的一个示例，直接返回Status Code
+		]]>
+		</description>
+		<step id="stepToForwardPage"
+			class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><response status="403"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+
+	<operation uri="/sample/attribute" name="Json Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<attribute>的一个示例。
+			当返回是attribute类型时，会把数据上下文中的指定的某个对象转化成字符串（toString方法）直接写入到response的输出中（out.print方法）。
+		]]>
+		</description>
+		<step id="stepAttribute"
+			class="cn.kanejin.webop.sample.opstep.AttributeDataStep">
+			<init-params>
+				<param name="name" value="attribute tester" />
+			</init-params>
+			<return-action>
+				<if return="0">
+					<attribute attr="attrData"/>
+				</if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+	
+	<operation uri="/sample/json" name="Json Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<json>的一个示例。
+			对<json>来说，converter是可选的：
+			如果不指定converter的话，oper为使用jackson的默认方式对结果进行json的转换；
+			如果默认的方式不合要求的话，请明确指定自定义的json converter。
+		]]>
+		</description>
+		<step id="stepJson"
+			class="cn.kanejin.webop.sample.opstep.AjaxDataStep">
+			<init-params>
+				<param name="name" value="json tester" />
+			</init-params>
+			<return-action>
+				<if return="0">
+					<json attr="ajaxData" converter="cn.kanejin.webop.sample.json.SimpleJsonConverter"/>
+				</if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+
+	<operation uri="/sample/jsonp" name="Jsonp Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<jsonp>的一个示例, jsonp如果是处理跨域的ajax调用。
+			对<jsonp>来说，converter是可选的：
+			如果不指定converter的话，oper为使用jackson的默认方式对结果进行jsonp的转换；
+			如果默认的方式不合要求的话，请明确指定自定义的json converter。
+		]]>
+		</description>
+		<step id="stepJsonp"
+			class="cn.kanejin.webop.sample.opstep.AjaxDataStep">
+			<init-params>
+				<param name="name" value="jsonp tester" />
+			</init-params>
+			<return-action>
+				<if return="0">
+					<jsonp attr="ajaxData" converter="cn.kanejin.webop.sample.json.SimpleJsonConverter"/>
+				</if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+	
+	<operation uri="/sample/script" name="Script Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<script>的一个示例。
+			对<script>来说，converter是可选的：
+			如果不指定converter的话，oper为使用jackson的默认方式对结果进行json的转换；
+			如果默认的方式不合要求的话，请明确指定自定义的json converter。
+			注：调用返回script类型的operation里，必须带有"callback"参数
+		]]>
+		</description>
+		<step id="stepJson"
+			class="cn.kanejin.webop.sample.opstep.AjaxDataStep">
+			<init-params>
+				<param name="name" value="script tester" />
+			</init-params>
+			<return-action>
+				<if return="0">
+					<script attr="ajaxData" converter="cn.kanejin.webop.sample.json.SimpleJsonConverter"/>
+				</if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+
+	<operation uri="/sample/xml" name="XML Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<xml>的一个示例。
+			对<xml>来说，converter是必须的：
+			因为oper为不提供默认的xml转换器，所以必须明确指定自定义的xml converter。
+		]]>
+		</description>
+		<step id="stepXml"
+			class="cn.kanejin.webop.sample.opstep.AjaxDataStep">
+			<init-params>
+				<param name="name" value="xml tester" />
+			</init-params>
+			<return-action>
+				<if return="0">
+					<xml attr="ajaxData" converter="cn.kanejin.webop.sample.xml.SimpleXmlConverter" />
+				</if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+	
+	<operation uri="/sample/operation" name="Operation Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<operation>跳转到另一个operation的一个示例。
+		]]>
+		</description>
+		<step id="stepOpeartion"
+			class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><operation uri="/sample/operation/to" params="hello=true&amp;who={name}" /></if>
+				<else><error/></else>
+			</return-action>
+			
+		</step>
+	</operation>
+	<operation uri="/sample/operation/pattern" name="Operation Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<operation>跳转到另一个operation的一个示例。
+		]]>
+		</description>
+		<step id="stepOpeartion"
+			class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><operation uri="/sample/{hello}" params="hello={hello}&amp;who={name}" /></if>
+				<else><error/></else>
+			</return-action>
+			
+		</step>
+	</operation>
+
+	<operation uri="/sample/operation/to" name="Operation Sample">
+		<step id="stepToOperation"
+			class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><forward page="/jsp/sample/operation.jsp"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+	
+	
+	<operation uri="/sample/return" name="Return Action Sample">
+		<description>
+		<![CDATA[
+			这是一个如何使用<if>根据Step不同的返回值，执行不同的action的示例。
+		]]>
+		</description>
+		<step id="stepReturn"
+			class="cn.kanejin.webop.sample.opstep.ReturnActionStep">
+			<return-action>
+				<if return="0"><forward page="/jsp/sample/return0.jsp"/></if>
+				<if return="1"><forward page="/jsp/sample/return1.jsp"/></if>
+				<if return="2"><forward page="/jsp/sample/return2.jsp"/></if>
+				<if return="3"><forward page="/jsp/sample/return3.jsp"/></if>
+				<if return="4"><forward page="/jsp/sample/return4.jsp"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+	
+	<operation uri="/sample/{return}" name="Return Action Sample">
+		<description>
+		<![CDATA[
+			这是一个URL里带有参数的示例。
+		]]>
+		</description>
+		<step id="stepReturn"
+			class="cn.kanejin.webop.sample.opstep.ReturnActionStep">
+			<return-action>
+				<if return="0"><forward page="/jsp/sample/return0.jsp"/></if>
+				<if return="1"><forward page="/jsp/sample/return1.jsp"/></if>
+				<if return="2"><forward page="/jsp/sample/return2.jsp"/></if>
+				<if return="3"><forward page="/jsp/sample/return3.jsp"/></if>
+				<if return="4"><forward page="/jsp/sample/return4.jsp"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+	
+</webop-config>

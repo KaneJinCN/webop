@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<webop-config xmlns="http://www.kanejin.cn/schema/webop"
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://www.kanejin.cn/schema/webop http://www.kanejin.cn/schema/webop.xsd">
+
+<interceptor id="helloInterceptor" class="cn.kanejin.webop.sample.interceptor.HelloInterceptor">
+		<description>
+		<![CDATA[
+			Say Hello
+		]]>
+		</description>
+	</interceptor>
+
+	<operation uri="/sample/interceptor">
+		<interceptor ref="helloInterceptor" />
+		<interceptor ref="worldInterceptor" />
+
+		<step id="stepToForwardPage"
+			class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><forward page="/jsp/sample/forward.jsp"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+
+	<interceptor id="worldInterceptor" class="cn.kanejin.webop.sample.interceptor.WorldInterceptor">
+		<description>
+		<![CDATA[
+			Say World
+		]]>
+		</description>
+	</interceptor>
+	
+</webop-config>

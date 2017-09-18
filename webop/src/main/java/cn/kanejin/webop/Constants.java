@@ -1,0 +1,17 @@
+package cn.kanejin.webop;
+
+/**
+ * @version $Id: Constants.java 115 2016-03-15 06:34:36Z Kane $
+ * @author Kane Jin
+ */
+public interface Constants {
+	String RETURN_PAGE	= "_webop_return_page_";
+	String ERROR_MSG	= "_webop_error_msg_";
+	String TOKEN		= "_webop_token_";
+	String BACK_URL		= "_webop_back_url_";
+	String PATH_VAR		= "_webop_path_var_";
+	String MESSAGE		= "_webop_message_";
+	String UPLOADED		= "_webop_uploaded_";
+
+	String OP_JUMP_PARAMS = "_webop_op_jump_params_";
+}
