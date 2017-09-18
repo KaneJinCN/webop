@@ -25,7 +25,7 @@ public class PathPatternResolver {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		String[] r1 = resolve("/Users/Kane/Desktop", "**/*.txt");
+		String[] r1 = resolve("/Users/Kane/Desktop", "**/*.java");
 		if (r1 != null) {
 			for (String r : r1)
 				System.out.println(r);

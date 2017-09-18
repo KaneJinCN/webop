@@ -1,13 +1,13 @@
 package cn.kanejin.webop.sample.opstep;
 
+import cn.kanejin.webop.operation.InitializableStep;
+import cn.kanejin.webop.operation.OperationContext;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.kanejin.webop.operation.OperationContext;
-import cn.kanejin.webop.opstep.AbstractOperationStep;
-
-public class AttributeDataStep extends AbstractOperationStep {
+public class AttributeDataStep implements InitializableStep {
 
 	private String name;
 	

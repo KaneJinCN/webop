@@ -17,7 +17,7 @@ public class PatternOperation implements Serializable {
 		return operation;
 	}
 
-	public void setOperationId(Operation operation) {
+	public void setOperation(Operation operation) {
 		this.operation = operation;
 	}
 

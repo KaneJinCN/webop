@@ -4,10 +4,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.kanejin.webop.operation.InitializableStep;
 import cn.kanejin.webop.operation.OperationContext;
-import cn.kanejin.webop.opstep.AbstractOperationStep;
 
-public class AjaxDataStep extends AbstractOperationStep {
+public class AjaxDataStep implements InitializableStep {
 
 	private String name;
 	

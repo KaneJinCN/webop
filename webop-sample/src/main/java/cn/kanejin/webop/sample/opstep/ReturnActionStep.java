@@ -1,9 +1,9 @@
 package cn.kanejin.webop.sample.opstep;
 
 import cn.kanejin.webop.operation.OperationContext;
-import cn.kanejin.webop.opstep.AbstractOperationStep;
+import cn.kanejin.webop.operation.OperationStep;
 
-public class ReturnActionStep extends AbstractOperationStep {
+public class ReturnActionStep implements OperationStep {
 
 	@Override
 	public int execute(OperationContext context) {

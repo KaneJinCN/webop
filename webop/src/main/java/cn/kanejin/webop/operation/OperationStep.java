@@ -9,13 +9,6 @@ import java.util.Map;
  */
 public interface OperationStep extends Serializable {
 	/**
-	 * 初始化Step
-	 * 
-	 * @param params 初始化参数
-	 */
-	void init(Map<String, String> params);
-	
-	/**
 	 * 执行Step，在这里实现Step的业务逻辑
 	 * 
 	 * @param context Operation上下文

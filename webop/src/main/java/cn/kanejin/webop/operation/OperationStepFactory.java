@@ -36,8 +36,10 @@ public class OperationStepFactory {
 
 			// Cache中不存在时，创建新的STEP对象，并把对象放在Cache中
 			step = (OperationStep) Class.forName(stepDef.getClazz()).newInstance();
-			
-			step.init(stepDef.getInitParams());
+
+			if (step instanceof InitializableStep) {
+				((InitializableStep)step).init(stepDef.getInitParams());
+			}
 			
 			cache.put(cacheKey, step);
 
