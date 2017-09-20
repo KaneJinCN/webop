@@ -5,9 +5,9 @@ import java.util.Map;
 
 import javax.servlet.ServletException;
 
-import cn.kanejin.webop.Interceptor;
-import cn.kanejin.webop.InterceptorChain;
-import cn.kanejin.webop.operation.OperationContext;
+import cn.kanejin.webop.core.Interceptor;
+import cn.kanejin.webop.core.InterceptorChain;
+import cn.kanejin.webop.core.OperationContext;
 
 public class HelloInterceptor implements Interceptor {
 
@@ -23,6 +23,8 @@ public class HelloInterceptor implements Interceptor {
 		System.out.println("----------------------Hello---------------------");
 
 		chain.intercept(context);
+
+		System.out.println("----------------------Hello After Operation---------------------");
 	}
 
 	@Override

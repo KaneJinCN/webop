@@ -1,25 +1,27 @@
 package cn.kanejin.webop;
 
-import cn.kanejin.webop.operation.Operation;
-import cn.kanejin.webop.operation.OperationContext;
-import cn.kanejin.webop.operation.OperationContextImpl;
-import cn.kanejin.webop.operation.OperationMapping;
+import cn.kanejin.webop.core.def.CacheDef;
+import cn.kanejin.webop.cache.CachedResponse;
+import cn.kanejin.webop.cache.WebopCacheManager;
+import cn.kanejin.webop.core.*;
 import cn.kanejin.webop.support.AntPathMatcher;
 import cn.kanejin.webop.util.WebUtils;
+import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import static cn.kanejin.commons.util.StringUtils.isNotBlank;
 
 /**
- * @version $Id: MultipartFormdataFilter.java 115 2016-03-15 06:34:36Z Kane $
  * @author Kane Jin
  */
 public class DispatcherFilter implements Filter {
@@ -60,11 +62,84 @@ public class DispatcherFilter implements Filter {
 			log.info("URI = [{}], Operation URI = [{}]", req.getRequestURI(), op.getUri());
 			log.info("User-Agent = [{}]", req.getHeader("User-Agent"));
 
-			OperationContext ctx = new OperationContextImpl(req, res, servletContext);
+			if (op.needCached()) {
+				String key = generateCacheKey(op.getCacheDef(), req);
 
-			op.operate(ctx);
+				Cache<String, CachedResponse> cache = WebopCacheManager.getInstance().getHttpResponseCache();
+
+				CachedResponse cachedResponse = cache.get(key);
+
+				if (cachedResponse == null) {
+					cachedResponse = createCachedResponseElement(req, res, op);
+
+					if (cachedResponse.isOk()) {
+						cache.put(key, cachedResponse);
+					}
+				}
+
+				if (cachedResponse.isOk()) {
+					writeToResponse(res, cachedResponse);
+				}
+
+			} else {
+				OperationContext ctx = new OperationContextImpl(req, res, servletContext);
+				op.operate(ctx);
+			}
 		}
 	}
+
+	private CachedResponse createCachedResponseElement(
+			HttpServletRequest req, HttpServletResponse res, Operation op)
+			throws ServletException, IOException {
+
+		final ByteArrayResponseWrapper wrapper = new ByteArrayResponseWrapper(res);
+
+		OperationContext ctx = new OperationContextImpl(req, wrapper, servletContext);
+		op.operate(ctx);
+
+		wrapper.flush();
+
+		CachedResponse element = new CachedResponse();
+		element.setResponse(wrapper.getStatusCode(), wrapper.getContentType(), wrapper.toByteArray());
+		element.setExpiry(op.getCacheDef().getTimeToLive(), op.getCacheDef().getTimeToIdle());
+
+		return element;
+	}
+
+	private void writeToResponse(HttpServletResponse res,
+								 CachedResponse cachedResponse) throws IOException {
+
+		res.setStatus(cachedResponse.getStatusCode());
+
+		if (isNotBlank(cachedResponse.getContentType())) {
+			res.setContentType(cachedResponse.getContentType());
+		}
+
+		byte[] bodyContent = cachedResponse.getContent();
+		res.setContentLength(bodyContent.length);
+		OutputStream out = new BufferedOutputStream(res.getOutputStream());
+		out.write(bodyContent);
+		out.flush();
+	}
+
+	private String generateCacheKey(CacheDef cacheDef, HttpServletRequest req) {
+		if (cacheDef == null)
+			return null;
+
+		StringBuilder key = new StringBuilder(req.getMethod());
+		key.append('_');
+		key.append(req.getRequestURI());
+
+		for (String fieldName : cacheDef.getKeyFields()) {
+			key.append('_');
+			key.append(fieldName);
+			key.append('=');
+			key.append(req.getParameter(fieldName));
+		}
+
+		return key.toString();
+	}
+
 
 	@Override
 	public void destroy() {}

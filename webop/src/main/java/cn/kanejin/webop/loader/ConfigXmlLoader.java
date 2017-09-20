@@ -1,13 +1,11 @@
 package cn.kanejin.webop.loader;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import cn.kanejin.commons.util.NumberUtils;
+import cn.kanejin.webop.core.*;
+import cn.kanejin.webop.core.action.*;
+import cn.kanejin.webop.core.def.CacheDef;
+import cn.kanejin.webop.core.def.OperationDef;
+import cn.kanejin.webop.core.def.OperationStepDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -18,27 +16,14 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import cn.kanejin.webop.Interceptor;
-import cn.kanejin.webop.interceptor.InterceptorMapping;
-import cn.kanejin.webop.operation.Operation;
-import cn.kanejin.webop.operation.OperationException;
-import cn.kanejin.webop.operation.OperationMapping;
-import cn.kanejin.webop.operation.OperationStepSpec;
-import cn.kanejin.webop.operation.action.AttributeReturnAction;
-import cn.kanejin.webop.operation.action.BackReturnAction;
-import cn.kanejin.webop.operation.action.ErrorReturnAction;
-import cn.kanejin.webop.operation.action.ForwardReturnAction;
-import cn.kanejin.webop.operation.action.JsonReturnAction;
-import cn.kanejin.webop.operation.action.JsonpReturnAction;
-import cn.kanejin.webop.operation.action.NextReturnAction;
-import cn.kanejin.webop.operation.action.OperationReturnAction;
-import cn.kanejin.webop.operation.action.RedirectReturnAction;
-import cn.kanejin.webop.operation.action.ResponseReturnAction;
-import cn.kanejin.webop.operation.action.ReturnAction;
-import cn.kanejin.webop.operation.action.ScriptReturnAction;
-import cn.kanejin.webop.operation.action.StepReturnAction;
-import cn.kanejin.webop.operation.action.TextReturnAction;
-import cn.kanejin.webop.operation.action.XmlReturnAction;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static cn.kanejin.commons.util.StringUtils.isNotBlank;
 
 /**
  * @version $Id: OperationXmlLoader.java 115 2016-03-15 06:34:36Z Kane $
@@ -115,14 +100,15 @@ public class ConfigXmlLoader {
 			log.info("Loading Operation {}", opLog);
 		}
 		
-
-		Operation op = new Operation(opUri, opName, parseInterceptors(opNode), parseSteps(opNode));
+		Operation op = new Operation(
+				new OperationDef(
+						opUri, opName, parseCache(opNode), parseInterceptors(opNode), parseSteps(opNode)));
 
 		// TODO 这里可以添加operation的检验
 
 		OperationMapping.getInstance().put(op.getUri(), op);
 	}
-	
+
 	private void loadInterceptors(Node itNode) {
 		NamedNodeMap itAttr = itNode.getAttributes();
 		
@@ -211,17 +197,66 @@ public class ConfigXmlLoader {
 	    
 		return doc;
 	}
+
+	private CacheDef parseCache(Node opNode) {
+
+		NodeList childNodes = opNode.getChildNodes();
+
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node childNode = childNodes.item(i);
+
+			if (childNode.getNodeName().equals("cache")) {
+
+				NamedNodeMap paramAttr = childNode.getAttributes();
+
+				long ttl = -1L;
+				Node ttlNode = paramAttr.getNamedItem("ttl");
+				if (ttlNode != null && isNotBlank(ttlNode.getNodeValue())) {
+					ttl = NumberUtils.toLong(ttlNode.getNodeValue(), ttl);
+				}
+
+				long tti = 30 * 60L;
+				Node ttiNode = paramAttr.getNamedItem("tti");
+				if (ttiNode != null && isNotBlank(ttiNode.getNodeValue())) {
+					tti = NumberUtils.toLong(ttiNode.getNodeValue(), tti);
+				}
+
+				return new CacheDef(ttl, tti, parseKeyFields(childNode));
+			}
+		}
+
+		return null;
+	}
+
+	private String[] parseKeyFields(Node cacheNode) {
+		List<String> fields = new ArrayList<String>();
+
+		NodeList childNodes = cacheNode.getChildNodes();
+
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node childNode = childNodes.item(i);
+
+			if (childNode.getNodeName().equals("key-field")) {
+
+				NamedNodeMap fieldAttrs = childNode.getAttributes();
+
+				fields.add(fieldAttrs.getNamedItem("name").getNodeValue());
+			}
+		}
+		return fields.toArray(new String[0]);
+
+	}
 	
 	private List<String> parseInterceptors(Node opNode) {
 		List<String> itRefs = new ArrayList<String>();
 		
-		NodeList stepNodes = opNode.getChildNodes();
+		NodeList childNodes = opNode.getChildNodes();
 		
-		for (int i = 0; i < stepNodes.getLength(); i++) {
-			Node stepNode = stepNodes.item(i);
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node childNode = childNodes.item(i);
 			
-			if (stepNode.getNodeName().equals("interceptor")) {
-				NamedNodeMap paramAttr = stepNode.getAttributes();
+			if (childNode.getNodeName().equals("interceptor")) {
+				NamedNodeMap paramAttr = childNode.getAttributes();
 				itRefs.add(paramAttr.getNamedItem("ref").getNodeValue());
 			}
 		}
@@ -229,8 +264,8 @@ public class ConfigXmlLoader {
 		return itRefs;
 	}
 	
-	private List<OperationStepSpec> parseSteps(Node opNode) {
-		List<OperationStepSpec> opDefs = new ArrayList<OperationStepSpec>();
+	private List<OperationStepDef> parseSteps(Node opNode) {
+		List<OperationStepDef> opDefs = new ArrayList<OperationStepDef>();
 		
 		NodeList stepNodes = opNode.getChildNodes();
 		
@@ -244,7 +279,7 @@ public class ConfigXmlLoader {
 		return opDefs;
 	}
 
-	private OperationStepSpec parseStep(Node stepNode) {
+	private OperationStepDef parseStep(Node stepNode) {
 		NamedNodeMap stepAttr = stepNode.getAttributes();
 
 		String stepId = stepAttr.getNamedItem("id").getNodeValue();
@@ -255,7 +290,7 @@ public class ConfigXmlLoader {
 		if (isNull(stepClass))
 			throw new OperationException("Step[" + stepId + "]'s class is required");
 		
-		OperationStepSpec opStepDef = new OperationStepSpec(stepId, stepClass);
+		OperationStepDef opStepDef = new OperationStepDef(stepId, stepClass);
 		
 		NodeList stepChildNodes = stepNode.getChildNodes();
 		
@@ -270,7 +305,7 @@ public class ConfigXmlLoader {
 		return opStepDef;
 	}
 	
-	private void parseInitParam(Node initParamNode, OperationStepSpec opStepDef) {
+	private void parseInitParam(Node initParamNode, OperationStepDef opStepDef) {
 		NodeList paramNodes = initParamNode.getChildNodes();
 		
 		for (int j = 0; j < paramNodes.getLength(); j++) {
@@ -281,84 +316,85 @@ public class ConfigXmlLoader {
 		}
 	}
 
-	private void parseReturnAction(Node returnActionNode, OperationStepSpec opStepDef) {
+	private void parseReturnAction(Node returnActionNode, OperationStepDef opStepDef) {
 		NodeList actionNodes = returnActionNode.getChildNodes();
 
 		for (int j = 0; j < actionNodes.getLength(); j++) {
 			Node actionNode = actionNodes.item(j);
 			
-			String returnValue = null;
-			String actionValue = null;
+			String returnValueKey = null;
+			String actionType = null;
 			ReturnAction action = null;
+			NamedNodeMap actionAttr = null;
 			
 			if (actionNode.getNodeName().equals("if")) {
-				returnValue = actionNode.getAttributes()
+				returnValueKey = actionNode.getAttributes()
 										.getNamedItem("return").getNodeValue();
+
+				actionType = actionNode.getFirstChild().getNodeName();
+				actionAttr = actionNode.getFirstChild().getAttributes();
+
 			} else if (actionNode.getNodeName().equals("else")) {
-				returnValue = "-";
+				returnValueKey = "else";
+				actionType = actionNode.getFirstChild().getNodeName();
+				actionAttr = actionNode.getFirstChild().getAttributes();
+			} else {
+				returnValueKey = "always";
+				actionType = actionNode.getNodeName();
+				actionAttr = actionNode.getAttributes();
 			}
 
-			actionValue = actionNode.getFirstChild().getNodeName();
-			NamedNodeMap actionAttr = actionNode.getFirstChild().getAttributes();
-
-			if (actionValue.equals("next")) {
+			if (actionType.equals("next")) {
 				action = NextReturnAction.getInstance();
-			} else if (actionValue.equals("step")) {
+			} else if (actionType.equals("step")) {
 				action = StepReturnAction.getInstance(actionAttr.getNamedItem("id").getNodeValue());
-			} else if (actionValue.equals("forward")) {
+			} else if (actionType.equals("forward")) {
 				action = ForwardReturnAction.getInstance(actionAttr.getNamedItem("page").getNodeValue());
-			} else if (actionValue.equals("redirect")) {
+			} else if (actionType.equals("redirect")) {
 				action = RedirectReturnAction.getInstance(actionAttr.getNamedItem("page").getNodeValue());
-			} else if (actionValue.equals("operation")) {
-				
-				// FIXME 过渡，如果没有配置uri，以前的id仍然有效，迁移完成后删除这段
-				Node uriNode = actionAttr.getNamedItem("uri");
-				String uri = "";
-				if (uriNode != null) {
-					uri = uriNode.getNodeValue();
-				} else {
-					Node idNode = actionAttr.getNamedItem("id");
-					
-					uri = "/" + idNode.getNodeValue().replaceAll("\\.", "/");
+			} else if (actionType.equals("operation")) {
+				String uri = actionAttr.getNamedItem("uri").getNodeValue();
+				if (!uri.startsWith("/")) {
+					throw new OperationException("Operation Definition Error: Uri of operation must start with '/'.");
 				}
 
 				action = OperationReturnAction.getInstance(
 						uri,
 						actionAttr.getNamedItem("params") != null ? actionAttr.getNamedItem("params").getNodeValue() : null);
-			} else if (actionValue.equals("script")) {
+			} else if (actionType.equals("script")) {
 				action = ScriptReturnAction.getInstance(
 					actionAttr.getNamedItem("attr").getNodeValue(),
 					actionAttr.getNamedItem("converter") != null ? actionAttr.getNamedItem("converter").getNodeValue() : null
 				);
-			} else if (actionValue.equals("attribute")) {
+			} else if (actionType.equals("attribute")) {
 				action = AttributeReturnAction.getInstance(actionAttr.getNamedItem("attr").getNodeValue());
-			} else if (actionValue.equals("text")) {
+			} else if (actionType.equals("text")) {
 				action = TextReturnAction.getInstance(actionAttr.getNamedItem("value").getNodeValue());
-			} else if (actionValue.equals("json")) {
+			} else if (actionType.equals("json")) {
 				action = JsonReturnAction.getInstance(
 					actionAttr.getNamedItem("attr").getNodeValue(),
 					actionAttr.getNamedItem("converter") != null ? actionAttr.getNamedItem("converter").getNodeValue() : null
 				);
-			} else if (actionValue.equals("jsonp")) {
+			} else if (actionType.equals("jsonp")) {
 				action = JsonpReturnAction.getInstance(
 					actionAttr.getNamedItem("attr").getNodeValue(),
 					actionAttr.getNamedItem("callback") != null ? actionAttr.getNamedItem("callback").getNodeValue() : null,
 					actionAttr.getNamedItem("converter") != null ? actionAttr.getNamedItem("converter").getNodeValue() : null
 				);
-			} else if (actionValue.equals("xml")) {
+			} else if (actionType.equals("xml")) {
 				action = XmlReturnAction.getInstance(
 					actionAttr.getNamedItem("attr").getNodeValue(),
 					actionAttr.getNamedItem("converter").getNodeValue()
 				);
-			} else if (actionValue.equals("response")) {
+			} else if (actionType.equals("response")) {
 				action = ResponseReturnAction.getInstance(actionAttr.getNamedItem("status").getNodeValue());
-			} else if (actionValue.equals("back")) {
+			} else if (actionType.equals("back")) {
 				action = BackReturnAction.getInstance();
-			} else if (actionValue.equals("error")) {
+			} else if (actionType.equals("error")) {
 				action = ErrorReturnAction.getInstance();
 			}
 			
-			opStepDef.addReturnAction(returnValue, action);
+			opStepDef.addReturnAction(returnValueKey, action);
 		}
 	}
 	

@@ -1,7 +1,7 @@
 package cn.kanejin.webop.sample.opstep;
 
-import cn.kanejin.webop.operation.InitializableStep;
-import cn.kanejin.webop.operation.OperationContext;
+import cn.kanejin.webop.core.InitializableStep;
+import cn.kanejin.webop.core.OperationContext;
 
 import java.util.Date;
 import java.util.HashMap;

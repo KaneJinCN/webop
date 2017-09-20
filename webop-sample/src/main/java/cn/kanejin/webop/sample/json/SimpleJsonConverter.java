@@ -10,7 +10,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import cn.kanejin.webop.converter.Converter;
+import cn.kanejin.webop.core.Converter;
 
 
 public class SimpleJsonConverter implements Converter<Map<String, Object>> {

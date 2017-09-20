@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<webop-config xmlns="http://www.kanejin.cn/schema/webop"
-			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			 xsi:schemaLocation="http://www.kanejin.cn/schema/webop http://www.kanejin.cn/schema/webop.xsd">
+<webop xmlns="http://www.kanejin.cn/schema/webop"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.kanejin.cn/schema/webop http://www.kanejin.cn/schema/webop.xsd">
 
 <interceptor id="helloInterceptor" class="cn.kanejin.webop.sample.interceptor.HelloInterceptor">
 		<description>
@@ -32,4 +32,4 @@
 		</description>
 	</interceptor>
 	
-</webop-config>
+</webop>

@@ -1,8 +1,8 @@
 package cn.kanejin.webop.interceptor;
 
-import cn.kanejin.webop.Interceptor;
-import cn.kanejin.webop.InterceptorChain;
-import cn.kanejin.webop.operation.OperationContext;
+import cn.kanejin.webop.core.Interceptor;
+import cn.kanejin.webop.core.InterceptorChain;
+import cn.kanejin.webop.core.OperationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

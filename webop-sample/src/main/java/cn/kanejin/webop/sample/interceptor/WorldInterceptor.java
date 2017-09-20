@@ -5,9 +5,9 @@ import java.util.Map;
 
 import javax.servlet.ServletException;
 
-import cn.kanejin.webop.Interceptor;
-import cn.kanejin.webop.InterceptorChain;
-import cn.kanejin.webop.operation.OperationContext;
+import cn.kanejin.webop.core.Interceptor;
+import cn.kanejin.webop.core.InterceptorChain;
+import cn.kanejin.webop.core.OperationContext;
 
 public class WorldInterceptor implements Interceptor {
 
@@ -23,6 +23,9 @@ public class WorldInterceptor implements Interceptor {
 		System.out.println("----------------------World---------------------");
 		
 		chain.intercept(context);
+
+		System.out.println("----------------------World After Operation---------------------");
+
 	}
 
 	@Override

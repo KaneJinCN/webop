@@ -3,7 +3,7 @@ package cn.kanejin.webop.sample.xml;
 import java.util.Date;
 import java.util.Map;
 
-import cn.kanejin.webop.converter.Converter;
+import cn.kanejin.webop.core.Converter;
 
 public class SimpleXmlConverter implements Converter<Map<String, Object>> {
 

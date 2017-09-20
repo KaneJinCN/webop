@@ -30,6 +30,7 @@
 <li><a href="#sample1">/sample/1</a></li>
 <li><a href="#sample2">/sample/2</a></li>
 <li><a href="#sample3">/sample/3</a></li>
+<li><a href="#sampleInfinite">/sample/infinite</a></li>
 
 </ul>
 
@@ -93,5 +94,11 @@
 <iframe src="<%=request.getContextPath()%>/sample/2" width="800" height="200"></iframe>
 <h2 id="sample3">/sample/3 : </h2>
 <iframe src="<%=request.getContextPath()%>/sample/3" width="800" height="200"></iframe>
+
+<h2 id="sampleInfinite">/sample/3 : </h2>
+<iframe src="<%=request.getContextPath()%>/sample/infinite" width="800" height="200"></iframe>
+
+
 </body>
+
 </html>

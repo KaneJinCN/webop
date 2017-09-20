@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.kanejin.webop.operation.InitializableStep;
-import cn.kanejin.webop.operation.OperationContext;
+import cn.kanejin.webop.core.InitializableStep;
+import cn.kanejin.webop.core.OperationContext;
 
 public class AjaxDataStep implements InitializableStep {
 

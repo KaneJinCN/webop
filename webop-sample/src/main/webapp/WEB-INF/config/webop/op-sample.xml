@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<webop-config xmlns="http://www.kanejin.cn/schema/webop"
-			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			 xsi:schemaLocation="http://www.kanejin.cn/schema/webop http://www.kanejin.cn/schema/webop.xsd">
+<webop xmlns="http://www.kanejin.cn/schema/webop"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.kanejin.cn/schema/webop http://www.kanejin.cn/schema/webop.xsd">
 
 	<operation uri="/sample/forward" name="Forward Sample">
 		<description>
@@ -14,8 +14,7 @@
 		<step id="stepToForwardPage"
 			class="cn.kanejin.webop.opstep.ForwardPage">
 			<return-action>
-				<if return="0"><forward page="/jsp/sample/forward.jsp"/></if>
-				<else><error/></else>
+				<forward type="freemarker" page="/jsp/sample/forward.jsp"/>
 			</return-action>
 		</step>
 	</operation>
@@ -141,6 +140,7 @@
 			如果默认的方式不合要求的话，请明确指定自定义的json converter。
 		]]>
 		</description>
+
 		<step id="stepJson"
 			class="cn.kanejin.webop.sample.opstep.AjaxDataStep">
 			<init-params>
@@ -150,7 +150,9 @@
 				<if return="0">
 					<json attr="ajaxData" converter="cn.kanejin.webop.sample.json.SimpleJsonConverter"/>
 				</if>
-				<else><error/></else>
+				<else>
+					<error/>
+				</else>
 			</return-action>
 		</step>
 	</operation>
@@ -245,7 +247,7 @@
 			这是一个如何使用<operation>跳转到另一个operation的一个示例。
 		]]>
 		</description>
-		<step id="stepOpeartion"
+		<step id="stepOperation"
 			class="cn.kanejin.webop.opstep.ForwardPage">
 			<return-action>
 				<if return="0"><operation uri="/sample/{hello}" params="hello={hello}&amp;who={name}" /></if>
@@ -265,13 +267,15 @@
 		</step>
 	</operation>
 	
-	
 	<operation uri="/sample/return" name="Return Action Sample">
 		<description>
 		<![CDATA[
 			这是一个如何使用<if>根据Step不同的返回值，执行不同的action的示例。
 		]]>
 		</description>
+		<cache tti="60" ttl="120">
+			<key-field name="return" />
+		</cache>
 		<step id="stepReturn"
 			class="cn.kanejin.webop.sample.opstep.ReturnActionStep">
 			<return-action>
@@ -303,5 +307,22 @@
 			</return-action>
 		</step>
 	</operation>
+
+	<operation uri="/sample/infinite">
+		<step id="firstStep" class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><next/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+
+		<step id="secondStep" class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><step id="firstStep"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+
+	</operation>
 	
-</webop-config>
+</webop>

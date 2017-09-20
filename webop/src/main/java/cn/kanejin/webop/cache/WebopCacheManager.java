@@ -1,8 +1,8 @@
 package cn.kanejin.webop.cache;
 
-import cn.kanejin.webop.converter.Converter;
-import cn.kanejin.webop.operation.OperationStep;
-import cn.kanejin.webop.operation.PatternOperation;
+import cn.kanejin.webop.core.Converter;
+import cn.kanejin.webop.core.OperationStep;
+import cn.kanejin.webop.core.PatternOperation;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 
@@ -20,6 +20,8 @@ import static org.ehcache.expiry.Expirations.timeToIdleExpiration;
 public class WebopCacheManager {
 
     private CacheManager cacheManager;
+
+    private static final String CACHE_HTTP_RESPONSE = "_webop_httpResponseCache";
 
     private static final String CACHE_PATTERN_OPERATION = "_webop_patternOperationCache";
     private static final String CACHE_STEP = "_webop_stepCache";
@@ -48,6 +50,9 @@ public class WebopCacheManager {
                     .withCache(CACHE_CONVERTER,
                             newCacheConfigurationBuilder(String.class, Converter.class, heap(1000))
                                     .withExpiry(timeToIdleExpiration(of(30L, TimeUnit.MINUTES))))
+                    .withCache(CACHE_HTTP_RESPONSE,
+                            newCacheConfigurationBuilder(String.class, CachedResponse.class, heap(1000))
+                                    .withExpiry(new CachedResponseExpiry()))
                     .build(true);
         }
     }
@@ -71,6 +76,10 @@ public class WebopCacheManager {
      */
     public Cache<String, Converter> getConverterCache() {
         return cacheManager.getCache(CACHE_CONVERTER, String.class, Converter.class);
+    }
+
+    public Cache<String, CachedResponse> getHttpResponseCache() {
+        return cacheManager.getCache(CACHE_HTTP_RESPONSE, String.class, CachedResponse.class);
     }
 
     public void close() {
