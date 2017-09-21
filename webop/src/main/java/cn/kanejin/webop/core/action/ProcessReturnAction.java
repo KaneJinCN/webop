@@ -15,9 +15,9 @@ public abstract class ProcessReturnAction implements ReturnAction {
             OperationStepDef stepDef,
             OperationContext context) throws ServletException, IOException {
 
-        return getNextStep(operationDef, stepDef);
+        return nextStep(operationDef, stepDef);
     }
 
-    protected abstract OperationStepDef getNextStep(
+    protected abstract OperationStepDef nextStep(
             OperationDef operationDef, OperationStepDef stepDef);
 }

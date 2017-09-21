@@ -14,7 +14,7 @@
 		<step id="stepToForwardPage"
 			class="cn.kanejin.webop.opstep.ForwardPage">
 			<return-action>
-				<forward type="freemarker" page="/jsp/sample/forward.jsp"/>
+				<forward page="/jsp/sample/forward.jsp"/>
 			</return-action>
 		</step>
 	</operation>

@@ -31,7 +31,7 @@
         </xsd:annotation>
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="jsp"/>
-            <xsd:enumeration value="freemarker"/>
+            <!--<xsd:enumeration value="freemarker"/>-->
         </xsd:restriction>
     </xsd:simpleType>
 
@@ -40,7 +40,7 @@
         <xsd:attribute name="id" type="xsd:string" use="required"/>
     </xsd:complexType>
     <xsd:complexType name="forwardActionType">
-        <xsd:attribute name="type" type="forwardTypeType"/>
+        <xsd:attribute name="type" type="forwardTypeType" default="jsp"/>
         <xsd:attribute name="page" type="xsd:string" use="required"/>
     </xsd:complexType>
     <xsd:complexType name="redirectActionType">
@@ -58,16 +58,16 @@
     </xsd:complexType>
     <xsd:complexType name="jsonActionType">
         <xsd:attribute name="attr" type="xsd:string" use="required"/>
-        <xsd:attribute name="converter" type="xsd:string" use="optional"/>
+        <xsd:attribute name="converter" type="xsd:string"/>
     </xsd:complexType>
     <xsd:complexType name="jsonpActionType">
         <xsd:attribute name="attr" type="xsd:string" use="required"/>
-        <xsd:attribute name="callback" type="xsd:string" use="optional"/>
-        <xsd:attribute name="converter" type="xsd:string" use="optional"/>
+        <xsd:attribute name="callback" type="xsd:string"/>
+        <xsd:attribute name="converter" type="xsd:string"/>
     </xsd:complexType>
     <xsd:complexType name="scriptActionType">
         <xsd:attribute name="attr" type="xsd:string" use="required"/>
-        <xsd:attribute name="converter" type="xsd:string" use="optional"/>
+        <xsd:attribute name="converter" type="xsd:string"/>
     </xsd:complexType>
     <xsd:complexType name="xmlActionType">
         <xsd:attribute name="attr" type="xsd:string" use="required"/>
@@ -185,7 +185,7 @@
     <xsd:complexType name="expiryTimeType">
         <xsd:simpleContent>
             <xsd:extension base="xsd:positiveInteger">
-                <xsd:attribute name="unit" type="timeUnitType" default="seconds" />
+                <xsd:attribute name="unit" type="timeUnitType" default="seconds"/>
             </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>
@@ -228,7 +228,7 @@
         </xsd:annotation>
 
         <xsd:sequence>
-            <xsd:element name="expiry" type="expiryType" minOccurs="0" />
+            <xsd:element name="expiry" type="expiryType" minOccurs="0"/>
             <xsd:element name="key-field" type="xsd:string" minOccurs="0" maxOccurs="unbounded">
                 <xsd:annotation>
                     <xsd:documentation>
@@ -252,8 +252,8 @@
 
     <xsd:complexType name="interceptorType">
         <xsd:sequence>
-            <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="init-params" type="initParamsType" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="init-params" type="initParamsType" minOccurs="0"/>
         </xsd:sequence>
         <xsd:attribute name="id" type="xsd:string" use="required"/>
         <xsd:attribute name="class" type="xsd:string" use="required"/>

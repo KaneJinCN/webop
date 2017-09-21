@@ -23,7 +23,7 @@ public class StepReturnAction extends ProcessReturnAction {
 	}
 
 	@Override
-	protected OperationStepDef getNextStep(OperationDef operationDef, OperationStepDef stepDef) {
+	protected OperationStepDef nextStep(OperationDef operationDef, OperationStepDef stepDef) {
 		for (OperationStepDef def : operationDef.getOpSteps()) {
 			if (def.getId().equals(stepId)) {
 				return def;

@@ -19,7 +19,7 @@ public class NextReturnAction extends ProcessReturnAction {
 	private NextReturnAction() {}
 
 	@Override
-	protected OperationStepDef getNextStep(OperationDef operationDef, OperationStepDef stepDef) {
+	protected OperationStepDef nextStep(OperationDef operationDef, OperationStepDef stepDef) {
 		List<OperationStepDef> steps = operationDef.getOpSteps();
 
 		int nextStepIndex = steps.indexOf(stepDef) + 1;
