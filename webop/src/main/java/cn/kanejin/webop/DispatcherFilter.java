@@ -99,9 +99,8 @@ public class DispatcherFilter implements Filter {
 
 		wrapper.flush();
 
-		CachedResponse element = new CachedResponse();
+		CachedResponse element = new CachedResponse(op.getCacheDef().getExpiryDef());
 		element.setResponse(wrapper.getStatusCode(), wrapper.getContentType(), wrapper.toByteArray());
-		element.setExpiry(op.getCacheDef().getTimeToLive(), op.getCacheDef().getTimeToIdle());
 
 		return element;
 	}

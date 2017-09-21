@@ -4,6 +4,7 @@ import cn.kanejin.commons.util.NumberUtils;
 import cn.kanejin.webop.core.*;
 import cn.kanejin.webop.core.action.*;
 import cn.kanejin.webop.core.def.CacheDef;
+import cn.kanejin.webop.core.def.CacheExpiryDef;
 import cn.kanejin.webop.core.def.OperationDef;
 import cn.kanejin.webop.core.def.OperationStepDef;
 import org.slf4j.Logger;
@@ -22,8 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static cn.kanejin.commons.util.StringUtils.isNotBlank;
 
 /**
  * @version $Id: OperationXmlLoader.java 115 2016-03-15 06:34:36Z Kane $
@@ -207,25 +206,37 @@ public class ConfigXmlLoader {
 
 			if (childNode.getNodeName().equals("cache")) {
 
-				NamedNodeMap paramAttr = childNode.getAttributes();
-
-				long ttl = -1L;
-				Node ttlNode = paramAttr.getNamedItem("ttl");
-				if (ttlNode != null && isNotBlank(ttlNode.getNodeValue())) {
-					ttl = NumberUtils.toLong(ttlNode.getNodeValue(), ttl);
-				}
-
-				long tti = 30 * 60L;
-				Node ttiNode = paramAttr.getNamedItem("tti");
-				if (ttiNode != null && isNotBlank(ttiNode.getNodeValue())) {
-					tti = NumberUtils.toLong(ttiNode.getNodeValue(), tti);
-				}
-
-				return new CacheDef(ttl, tti, parseKeyFields(childNode));
+				return new CacheDef(parseExpiry(childNode), parseKeyFields(childNode));
 			}
 		}
 
 		return null;
+	}
+
+	private CacheExpiryDef parseExpiry(Node cacheNode) {
+		NodeList childNodes = cacheNode.getChildNodes();
+
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node childNode = childNodes.item(i);
+
+			if (childNode.getNodeName().equals("expiry")) {
+
+				Node expiryNode = childNode.getFirstChild();
+
+				String type = expiryNode.getNodeName();
+
+				String unit = null;
+				Long time = null;
+				if (type.equals("ttl") || type.equals("tti")) {
+					unit = expiryNode.getAttributes().getNamedItem("unit").getNodeValue();
+					time = NumberUtils.toLong(expiryNode.getTextContent(), 5L);
+				}
+
+				return new CacheExpiryDef(type, unit, time);
+			}
+		}
+
+		return new CacheExpiryDef("ttl", "minutes", 5L);
 	}
 
 	private String[] parseKeyFields(Node cacheNode) {
@@ -237,10 +248,7 @@ public class ConfigXmlLoader {
 			Node childNode = childNodes.item(i);
 
 			if (childNode.getNodeName().equals("key-field")) {
-
-				NamedNodeMap fieldAttrs = childNode.getAttributes();
-
-				fields.add(fieldAttrs.getNamedItem("name").getNodeValue());
+				fields.add(childNode.getTextContent());
 			}
 		}
 		return fields.toArray(new String[0]);

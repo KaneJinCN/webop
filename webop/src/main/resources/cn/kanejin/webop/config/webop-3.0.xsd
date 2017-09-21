@@ -172,18 +172,49 @@
         <xsd:attribute name="ref" type="xsd:string" use="required"/>
     </xsd:complexType>
 
-    <xsd:complexType name="keyFieldType">
+    <xsd:simpleType name="timeUnitType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="millis"/>
+            <xsd:enumeration value="seconds"/>
+            <xsd:enumeration value="minutes"/>
+            <xsd:enumeration value="hours"/>
+            <xsd:enumeration value="days"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="expiryTimeType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:positiveInteger">
+                <xsd:attribute name="unit" type="timeUnitType" default="seconds" />
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="eternalType"/>
+
+    <xsd:complexType name="expiryType">
         <xsd:annotation>
             <xsd:documentation>
 
-                缓存key生成时所用的参数
+                缓存过期时间
+
+                eternal: 永不过期
+                ttl: time to live, 缓存存活时间
+                tti: time to idle, 缓存空闲时间
 
                 Used in: cache
 
             </xsd:documentation>
         </xsd:annotation>
-        <xsd:attribute name="name" type="xsd:string" use="required"/>
+
+        <xsd:choice>
+            <xsd:element name="ttl" type="expiryTimeType"/>
+            <xsd:element name="tti" type="expiryTimeType"/>
+            <xsd:element name="eternal" type="eternalType"/>
+        </xsd:choice>
+
     </xsd:complexType>
+
 
     <xsd:complexType name="operationCacheType">
         <xsd:annotation>
@@ -197,27 +228,15 @@
         </xsd:annotation>
 
         <xsd:sequence>
-            <xsd:element name="key-field" type="keyFieldType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="expiry" type="expiryType" minOccurs="0" />
+            <xsd:element name="key-field" type="xsd:string" minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        缓存key生成时所用的参数
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
         </xsd:sequence>
-
-        <xsd:attribute name="ttl" type="xsd:integer" use="optional">
-            <xsd:annotation>
-                <xsd:documentation>
-
-                    time to live: 缓存存活时间，单位秒
-
-                </xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
-        <xsd:attribute name="tti" type="xsd:integer" use="optional">
-            <xsd:annotation>
-                <xsd:documentation>
-
-                    time to idle: 缓存空闲时间，单位秒
-
-                </xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
     </xsd:complexType>
 
     <xsd:complexType name="operationType">

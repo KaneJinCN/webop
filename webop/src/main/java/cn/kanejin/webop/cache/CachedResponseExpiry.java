@@ -1,11 +1,9 @@
 package cn.kanejin.webop.cache;
 
+import cn.kanejin.webop.core.def.CacheExpiryDef;
 import org.ehcache.ValueSupplier;
 import org.ehcache.expiry.Duration;
-import org.ehcache.expiry.Expirations;
 import org.ehcache.expiry.Expiry;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Kane Jin
@@ -13,28 +11,32 @@ import java.util.concurrent.TimeUnit;
 public class CachedResponseExpiry implements Expiry<String, CachedResponse> {
     @Override
     public Duration getExpiryForCreation(String key, CachedResponse response) {
-        if (response.getTimeToLive() < 0) {
-            return Duration.INFINITE;
-        }
+        CacheExpiryDef expiryDef = response.getExpiryDef();
 
-        return Duration.of(response.getTimeToLive(), TimeUnit.SECONDS);
+        if (expiryDef.getType().equals("eternal")) {
+            return Duration.INFINITE;
+        } else if (expiryDef.getType().equals("ttl")) {
+            return Duration.of(expiryDef.getTime(), expiryDef.getUnit());
+        } else if (expiryDef.getType().equals("tti")) {
+            return Duration.of(expiryDef.getTime(), expiryDef.getUnit());
+        } else {
+            throw new RuntimeException("CacheDef of CachedResponse is invalid");
+        }
     }
 
     @Override
     public Duration getExpiryForAccess(String key, ValueSupplier<? extends CachedResponse> supplier) {
-        if (supplier.value().getTimeToIdle() < 0)
-            return null;
+        CacheExpiryDef expiryDef = supplier.value().getExpiryDef();
 
-        return Duration.of(supplier.value().getTimeToIdle(), TimeUnit.SECONDS);
+        if (expiryDef.getType().equals("tti")) {
+            return Duration.of(expiryDef.getTime(), expiryDef.getUnit());
+        } else {
+            return null;
+        }
     }
 
     @Override
     public Duration getExpiryForUpdate(String key, ValueSupplier<? extends CachedResponse> oldValue, CachedResponse newValue) {
-        if (newValue.getTimeToLive() < 0) {
-            return Duration.INFINITE;
-        }
-
-        return Duration.of(newValue.getTimeToLive(), TimeUnit.SECONDS);
-
+        return getExpiryForCreation(key, newValue);
     }
 }

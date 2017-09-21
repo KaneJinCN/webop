@@ -1,5 +1,7 @@
 package cn.kanejin.webop.cache;
 
+import cn.kanejin.webop.core.def.CacheExpiryDef;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 
@@ -7,16 +9,14 @@ import java.io.Serializable;
  * @author Kane Jin
  */
 public class CachedResponse implements Serializable {
-    private long timeToLive;
-    private long timeToIdle;
+    private final CacheExpiryDef expiryDef;
 
     private int statusCode;
     private String contentType;
     private byte[] content;
 
-    public void setExpiry(long timeToLive, long timeToIdle) {
-        this.timeToLive = timeToLive;
-        this.timeToIdle = timeToIdle;
+    public CachedResponse(CacheExpiryDef expiryDef) {
+        this.expiryDef = expiryDef;
     }
 
     public void setResponse(int statusCode, String contentType, byte[] content) {
@@ -26,12 +26,8 @@ public class CachedResponse implements Serializable {
 
     }
 
-    public long getTimeToLive() {
-        return timeToLive;
-    }
-
-    public long getTimeToIdle() {
-        return timeToIdle;
+    public CacheExpiryDef getExpiryDef() {
+        return expiryDef;
     }
 
     public int getStatusCode() {
