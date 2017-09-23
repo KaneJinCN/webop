@@ -3,7 +3,7 @@
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xsi:schemaLocation="http://www.kanejin.cn/schema/webop http://www.kanejin.cn/schema/webop.xsd">
 
-	<operation uri="/sample/forward" name="Forward Sample">
+	<operation uri="/sample/forward" name="Forward Sample" method="GET POST">
 		<description>
 		<![CDATA[
 			这是一个如何使用<forward>的一个示例

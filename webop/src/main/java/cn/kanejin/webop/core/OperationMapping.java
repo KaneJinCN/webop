@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static cn.kanejin.commons.util.StringUtils.isBlank;
+
 /**
  * @version $Id: OperationMapping.java 168 2017-09-15 07:51:46Z Kane $
  * @author Kane Jin
@@ -20,7 +22,7 @@ import java.util.regex.Pattern;
 public class OperationMapping {
 	private static final Logger log = LoggerFactory.getLogger(OperationMapping.class);
 
-	private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\{[^/]+\\}");
+	private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\{[^/]+}");
 
 	private static OperationMapping om;
 
@@ -36,42 +38,77 @@ public class OperationMapping {
 		return om;
 	}
 
-	public Operation get(String uri) {
-		return ops.get(uri);
-	}
+	public void put(String uri, String[] methods, Operation op) {
+		if (methods == null || methods.length == 0) {
+			methods = new String[]{""};
+		}
 
-	public void put(String uri, Operation op) {
-		ops.put(uri, op);
+		for (String m : methods) {
+			String opId = joinUriAndMethod(uri, m);
+			ops.put(opId, op);
+		}
 
 		if (VARIABLE_PATTERN.matcher(uri).find())
 			oPatterns.add(uri);
+
 	}
+
+	public boolean exists(String uri, String method) {
+		return ops.containsKey(joinUriAndMethod(uri, method));
+	}
+
+	private String joinUriAndMethod(String uri, String method) {
+		return isBlank(method)
+				? uri
+				: method + "_" + uri;
+	}
+
 
 	public Operation getOperation(HttpServletRequest req) {
 		String uri = WebUtils.parseRequestURI(req);
+		String method = req.getMethod();
 
 		// Direct match
-		Operation op = ops.get(uri);
+		Operation op = findInOperations(uri, method);
 		if (op != null)
 			return op;
 
+		// 如果没找到，则在PatternOperation中匹配
+		return findInPatternOperation(req);
+	}
+
+	private Operation findInOperations(String uri, String method) {
+		Operation op = ops.get(uri);
+		if (op == null) {
+			op = ops.get(joinUriAndMethod(uri, method));
+		}
+
+		return op;
+	}
+
+	private Operation findInPatternOperation(HttpServletRequest req) {
+		String uri = WebUtils.parseRequestURI(req);
+		String method = req.getMethod();
+
 		Cache<String, PatternOperation> cache =
 				WebopCacheManager.getInstance().getPatternOperationCache();
+
+		Operation op = null;
 
 		// Pattern match
 		Map<String, String> pVars = null;
 		PatternOperation po = cache.get(uri);
 		// retrieve from cache
 		if (po != null) {
-			op = po.getOperation();
+			op = findInOperations(po.getOperationUri(), method);
 			pVars = po.getPathVariables();
 		}
 		// have no cache
 		else {
 			List<String> matchingPatterns = new ArrayList<String>();
-			for (String patt : oPatterns) {
-				if (match(patt, uri))
-					matchingPatterns.add(patt);
+			for (String uriPattern : oPatterns) {
+				if (match(uriPattern, uri))
+					matchingPatterns.add(uriPattern);
 			}
 			if (matchingPatterns.isEmpty())
 				return null;
@@ -80,11 +117,14 @@ public class OperationMapping {
 			String opId = matchingPatterns.get(0);
 
 			op = ops.get(opId);
+			if (op == null) {
+				op = ops.get(joinUriAndMethod(opId, method));
+			}
 
 			if (op != null) {
 				pVars = parsePathVariables(op.getUri(), uri);
 
-				cache.put(uri, new PatternOperation(op, pVars));
+				cache.put(uri, new PatternOperation(op.getUri(), pVars));
 			}
 		}
 
@@ -95,6 +135,7 @@ public class OperationMapping {
 	}
 
 	private boolean match(String pattern, String uri) {
+
 		if (pattern == null || pattern.isEmpty() || uri == null || uri.isEmpty())
 			return false;
 
@@ -132,5 +173,6 @@ public class OperationMapping {
 		}
 		return result;
 	}
+
 }
 

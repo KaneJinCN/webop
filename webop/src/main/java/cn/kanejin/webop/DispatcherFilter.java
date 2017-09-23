@@ -24,31 +24,23 @@ import static cn.kanejin.commons.util.StringUtils.isNotBlank;
 /**
  * @author Kane Jin
  */
-public class DispatcherFilter implements Filter {
+public class DispatcherFilter extends IgnoreUriFilter {
 	private static final Logger log = LoggerFactory.getLogger(DispatcherFilter.class);
-
-	private List<String> ignorePatterns;
-
-	private ServletContext servletContext;
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-
-		this.servletContext = filterConfig.getServletContext();
-
-		initIgnorePatterns(filterConfig.getInitParameter("ignorePatterns"));
+		super.init(filterConfig);
 	}
 
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-														throws IOException, ServletException {
-
-		HttpServletRequest req = (HttpServletRequest) request;
-		HttpServletResponse res = (HttpServletResponse) response;
+	public void doFilterInternal(HttpServletRequest req,
+								 HttpServletResponse res,
+								 FilterChain chain)
+			throws IOException, ServletException {
 
 		if (ignoreURI(req)) {
 			log.trace("Request[{}] is ignored", req.getRequestURI());
-			chain.doFilter(request, response);
+			chain.doFilter(req, res);
 
 			return ;
 		}
@@ -56,10 +48,10 @@ public class DispatcherFilter implements Filter {
 		Operation op = OperationMapping.getInstance().getOperation(req);
 
 		if(op == null) {
-			log.warn("No operation found for HTTP request with URI [{}]", req.getRequestURI());
-			chain.doFilter(request, response);
+			log.warn("No operation found for HTTP request with URI [{}] Method [{}]", req.getRequestURI(), req.getMethod());
+			chain.doFilter(req, res);
 		} else {
-			log.info("URI = [{}], Operation URI = [{}]", req.getRequestURI(), op.getUri());
+			log.info("URI = [{}], Method = [{}], Operation URI = [{}]", req.getRequestURI(), req.getMethod(), op.getUri());
 			log.info("User-Agent = [{}]", req.getHeader("User-Agent"));
 
 			if (op.needCached()) {
@@ -82,7 +74,7 @@ public class DispatcherFilter implements Filter {
 				}
 
 			} else {
-				OperationContext ctx = new OperationContextImpl(req, res, servletContext);
+				OperationContext ctx = new OperationContextImpl(req, res, getServletContext());
 				op.operate(ctx);
 			}
 		}
@@ -94,7 +86,7 @@ public class DispatcherFilter implements Filter {
 
 		final ByteArrayResponseWrapper wrapper = new ByteArrayResponseWrapper(res);
 
-		OperationContext ctx = new OperationContextImpl(req, wrapper, servletContext);
+		OperationContext ctx = new OperationContextImpl(req, wrapper, getServletContext());
 		op.operate(ctx);
 
 		wrapper.flush();
@@ -142,32 +134,5 @@ public class DispatcherFilter implements Filter {
 
 	@Override
 	public void destroy() {}
-
-
-	private void initIgnorePatterns(String ignorePatternsConfig) {
-		if (isNotBlank(ignorePatternsConfig)) {
-			ignorePatterns = new ArrayList<String>();
-
-			String[] patterns = ignorePatternsConfig.split("(\\s*,\\s*)|(\\s+)");
-			for (String p : patterns) {
-				ignorePatterns.add(p.trim());
-			}
-		}
-	}
-
-	private boolean ignoreURI(HttpServletRequest req) {
-
-		if (ignorePatterns == null)
-			return false;
-
-		String uri = WebUtils.parseRequestURI(req);
-
-		for (String pattern : ignorePatterns) {
-			if (AntPathMatcher.matches(pattern, uri))
-				return true;
-		}
-
-		return false;
-	}
 
 }

@@ -18,7 +18,7 @@
 		<filter-name>webopDispatcher</filter-name>
 		<filter-class>cn.kanejin.webop.DispatcherFilter</filter-class>
 		<init-param>
-			<param-name>ignorePatterns</param-name>
+			<param-name>ignoreUriPatterns</param-name>
 			<param-value>
 				/
 				/**/*.html

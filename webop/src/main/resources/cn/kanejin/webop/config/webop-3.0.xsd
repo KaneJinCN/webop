@@ -239,6 +239,17 @@
         </xsd:sequence>
     </xsd:complexType>
 
+    <xsd:simpleType name="httpMethodType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="GET"/>
+            <xsd:enumeration value="POST"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="operationMethodType">
+        <xsd:list itemType="httpMethodType"/>
+    </xsd:simpleType>
+
     <xsd:complexType name="operationType">
         <xsd:sequence>
             <xsd:element name="description" type="xsd:string" minOccurs="0"/>
@@ -247,6 +258,7 @@
             <xsd:element name="step" type="stepType" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:attribute name="uri" type="xsd:string" use="required"/>
+        <xsd:attribute name="method" type="operationMethodType"/>
         <xsd:attribute name="name" type="xsd:string"/>
     </xsd:complexType>
 

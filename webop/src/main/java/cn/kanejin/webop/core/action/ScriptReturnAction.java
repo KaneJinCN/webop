@@ -1,6 +1,5 @@
 package cn.kanejin.webop.core.action;
 
-import cn.kanejin.webop.MultipartRequestWrapper;
 import cn.kanejin.webop.core.Converter;
 import cn.kanejin.webop.core.ConverterFactory;
 import cn.kanejin.webop.core.OperationContext;

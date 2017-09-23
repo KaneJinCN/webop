@@ -95,7 +95,7 @@
 <h2 id="sample3">/sample/3 : </h2>
 <iframe src="<%=request.getContextPath()%>/sample/3" width="800" height="200"></iframe>
 
-<h2 id="sampleInfinite">/sample/3 : </h2>
+<h2 id="sampleInfinite">/sample/infinite : </h2>
 <iframe src="<%=request.getContextPath()%>/sample/infinite" width="800" height="200"></iframe>
 
 

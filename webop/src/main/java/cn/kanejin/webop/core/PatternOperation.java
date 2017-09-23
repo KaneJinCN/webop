@@ -4,28 +4,20 @@ import java.io.Serializable;
 import java.util.Map;
 
 public class PatternOperation implements Serializable {
-	private Operation operation;
+	private final String operationUri;
 
-	private Map<String, String> pathVariables;
+	private final Map<String, String> pathVariables;
 
-	public PatternOperation(Operation op, Map<String, String> pVars) {
-		this.operation = op;
+	public PatternOperation(String operationUri, Map<String, String> pVars) {
+		this.operationUri = operationUri;
 		this.pathVariables = pVars;
 	}
 
-	public Operation getOperation() {
-		return operation;
-	}
-
-	public void setOperation(Operation operation) {
-		this.operation = operation;
+	public String getOperationUri() {
+		return operationUri;
 	}
 
 	public Map<String, String> getPathVariables() {
 		return pathVariables;
-	}
-
-	public void setPathVariables(Map<String, String> pathVariables) {
-		this.pathVariables = pathVariables;
 	}
 }

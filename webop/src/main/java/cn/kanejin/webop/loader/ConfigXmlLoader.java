@@ -19,10 +19,10 @@ import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static cn.kanejin.commons.util.StringUtils.isBlank;
+import static cn.kanejin.commons.util.StringUtils.isNotBlank;
 
 /**
  * @version $Id: OperationXmlLoader.java 115 2016-03-15 06:34:36Z Kane $
@@ -71,23 +71,40 @@ public class ConfigXmlLoader {
 		NamedNodeMap opAttr = opNode.getAttributes();
 		
 		String opUri = null;
+		String[] opMethods = null;
 		
 		if (opAttr.getNamedItem("uri") != null) {
 			opUri = opAttr.getNamedItem("uri").getNodeValue();
 		}
-		
+
+		if (opAttr.getNamedItem("method") != null) {
+			String methodValue = opAttr.getNamedItem("method").getNodeValue();
+			if (isNotBlank(methodValue)) {
+				opMethods = methodValue.trim().split("\\s+");
+			}
+		}
+
 		// FIXME 过渡，如果没有配置uri，以前的id仍然有效，迁移完成后删除这段
-		if (isNull(opUri)) {
+		if (isBlank(opUri)) {
 			String opId = opAttr.getNamedItem("id").getNodeValue();
 			
 			opUri = "/" + opId.replaceAll("\\.", "/");
 		}
 		
-		if (isNull(opUri))
+		if (isBlank(opUri))
 			throw new OperationException("Operation's attribute uri is required");
-		
-		if (OperationMapping.getInstance().get(opUri) != null)
-			throw new OperationException("Operation [" + opUri + "] is defined more than once");
+
+		if (opMethods == null) {
+			if (OperationMapping.getInstance().exists(opUri, null))
+				throw new OperationException(
+						"Operation [" + opUri + "] is defined more than once");
+		} else {
+			for (String method : opMethods) {
+				if (OperationMapping.getInstance().exists(opUri, method))
+					throw new OperationException(
+							"Operation [" + opUri + "], Method [" + method + "] is defined more than once");
+			}
+		}
 
 		String opName = "";
 		if (opAttr.getNamedItem("name") != null) {
@@ -95,7 +112,8 @@ public class ConfigXmlLoader {
 		}
 		
 		if (log.isInfoEnabled()) {
-			String opLog = String.format("URI=[%-30s] NAME=[%s]", opUri, opName);
+			String methodString = opMethods == null || opMethods.length == 0 ? "[ALL]" : Arrays.toString(opMethods);
+			String opLog = String.format("URI=[%-30s] METHOD=%s NAME=[%s]", opUri, methodString, opName);
 			log.info("Loading Operation {}", opLog);
 		}
 		
@@ -105,7 +123,7 @@ public class ConfigXmlLoader {
 
 		// TODO 这里可以添加operation的检验
 
-		OperationMapping.getInstance().put(op.getUri(), op);
+		OperationMapping.getInstance().put(op.getUri(), opMethods, op);
 	}
 
 	private void loadInterceptors(Node itNode) {
@@ -114,10 +132,10 @@ public class ConfigXmlLoader {
 		String itId = itAttr.getNamedItem("id").getNodeValue();
 		String itClass = itAttr.getNamedItem("class").getNodeValue();
 		
-		if (isNull(itId))
+		if (isBlank(itId))
 			throw new OperationException("Interceptor's attribute id is required");
 		
-		if (isNull(itClass))
+		if (isBlank(itClass))
 			throw new OperationException("Interceptor's attribute class is required");
 
 		if (InterceptorMapping.getInstance().get(itId) != null)
@@ -291,11 +309,11 @@ public class ConfigXmlLoader {
 		NamedNodeMap stepAttr = stepNode.getAttributes();
 
 		String stepId = stepAttr.getNamedItem("id").getNodeValue();
-		if (isNull(stepId))
+		if (isBlank(stepId))
 			throw new OperationException("Step's id is required");
 
 		String stepClass = stepAttr.getNamedItem("class").getNodeValue();
-		if (isNull(stepClass))
+		if (isBlank(stepClass))
 			throw new OperationException("Step[" + stepId + "]'s class is required");
 		
 		OperationStepDef opStepDef = new OperationStepDef(stepId, stepClass);
@@ -404,9 +422,5 @@ public class ConfigXmlLoader {
 			
 			opStepDef.addReturnAction(returnValueKey, action);
 		}
-	}
-	
-	private static boolean isNull(String str) {
-		return (str == null) || (str.trim().equals(""));
 	}
 }
