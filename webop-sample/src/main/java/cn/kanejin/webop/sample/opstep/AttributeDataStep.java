@@ -2,6 +2,7 @@ package cn.kanejin.webop.sample.opstep;
 
 import cn.kanejin.webop.core.InitializableStep;
 import cn.kanejin.webop.core.OperationContext;
+import cn.kanejin.webop.core.annotation.StepMethod;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ public class AttributeDataStep implements InitializableStep {
 		setName(params.get("name"));
 	}
 
-	@Override
+	@StepMethod
 	public int execute(OperationContext context) {
 		context.setAttribute("name", name);
 		

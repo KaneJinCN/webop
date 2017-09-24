@@ -63,7 +63,7 @@ class PathVarURI {
         while(matcher.find()) {
             String s = matcher.group();
 
-            String r = null;
+            String r;
             if (s.contains(":")) {
                 String[] kp = s.substring(1, s.length() - 1).trim().split("\\s*:\\s*");
 

@@ -2,15 +2,21 @@ package cn.kanejin.webop.sample.opstep;
 
 import cn.kanejin.webop.core.OperationContext;
 import cn.kanejin.webop.core.OperationStep;
+import cn.kanejin.webop.core.annotation.Param;
+import cn.kanejin.webop.core.annotation.StepMethod;
+
+import java.math.BigDecimal;
 
 public class ReturnActionStep implements OperationStep {
 
-	@Override
-	public int execute(OperationContext context) {
-		if (context.getParameter("return") == null)
+	@StepMethod
+	public int execute(OperationContext context,
+					   @Param(name = "return") Integer returnValue) {
+
+		if (returnValue == null)
 			return 0;
 
-		return Integer.valueOf(context.getParameter("return"));
+		return returnValue.intValue();
 	}
 
 }

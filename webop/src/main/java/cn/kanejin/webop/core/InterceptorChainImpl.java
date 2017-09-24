@@ -7,15 +7,15 @@ import java.util.List;
 
 public class InterceptorChainImpl implements InterceptorChain {
 	private List<Interceptor> interceptors;
-	
+
 	private Integer cursor = 0;
-	
+
 	private Operation operation;
-	
+
 	public InterceptorChainImpl(Operation operation) {
 		this.operation = operation;
 	}
-	
+
 	public InterceptorChainImpl(Operation operation, List<Interceptor> interceptors) {
 		this.operation = operation;
 		this.interceptors = interceptors;
@@ -37,7 +37,7 @@ public class InterceptorChainImpl implements InterceptorChain {
 				return ;
 			}
 		}
-		
+
 		operation.execute(context);
 	}
 }

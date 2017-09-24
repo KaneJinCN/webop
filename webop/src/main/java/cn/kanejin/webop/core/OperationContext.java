@@ -7,6 +7,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.math.BigDecimal;
 import java.util.Enumeration;
 
 /**
@@ -14,6 +15,13 @@ import java.util.Enumeration;
  * @author Kane Jin
  */
 public interface OperationContext {
+
+	/**
+	 * 获取当前的ServletContext
+	 *
+	 * @return 当前的ServletContext
+	 */
+	ServletContext getServletContext();
 
 	/**
 	 * 获取当前Operation的Http Request
@@ -30,40 +38,45 @@ public interface OperationContext {
 	HttpServletResponse getResponse();
 	
 	/**
-	 * 获取当前的ServletContext
-	 * 
-	 * @return 当前的ServletContext
-	 */	
-	ServletContext getServletContext();
-
-	/**
 	 * 获取当前Operation的Http Session
 	 * 
 	 * @return 当前Operation的Http Session
 	 */
 	HttpSession getSession();
-	
+
+
 	/**
 	 * 从Operation的上下文中获取String类型的属性值
 	 * <p>
 	 * getParameter是{@link OperationContext#getAttribute getAttribute}的一个特例，即下列两个方法是同义的：
 	 * <pre>
-	 * String name = getParameter("name");
-	 * String name = getAttribute("name", String.class);
+	 * String nameValue = getParameter("name");
+	 * String nameValue = getAttribute("name", String.class);
 	 * </pre>
-	 * 
+	 *
 	 * <em>
 	 * getParameter跟request.getParameter是相同的，如果parameter是一个数组的话，那两者取到的都是该数组的第一个元素。
 	 * 所以当parameter是数组时，请使用{@link #getRequest()}取到request，然后再调用request.getParameterValues()取该数组。
 	 * </em>
-	 * 
-	 * @param paramKey 属性键
+	 *
+	 * @param name 参数名称
 	 * @return String类型的属性值
 	 */
-	String getParameter(String paramKey);
-	
-	String getParameter(String paramKey, String defaultValue);
-	
+	String getParameter(String name);
+
+	/**
+	 * 获取Http Request请求的字符串参数
+	 *
+	 * @param name 参数名称
+	 * @param defaultValue 默认值
+	 * @return 返回参数值，如果参数为null，则返默认值
+	 */
+	String getParameter(String name, String defaultValue);
+
+
+	String getPathVariable(String name);
+
+
 	/**
 	 * 判断当前请求是否包含上传文件
 	 * <p>
@@ -209,4 +222,5 @@ public interface OperationContext {
 	 * @return
 	 */
 	String getCurrentUrl(boolean withQueryString);
+
 }

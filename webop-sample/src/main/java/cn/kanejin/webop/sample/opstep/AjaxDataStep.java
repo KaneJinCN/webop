@@ -6,6 +6,7 @@ import java.util.Map;
 
 import cn.kanejin.webop.core.InitializableStep;
 import cn.kanejin.webop.core.OperationContext;
+import cn.kanejin.webop.core.annotation.StepMethod;
 
 public class AjaxDataStep implements InitializableStep {
 
@@ -16,7 +17,7 @@ public class AjaxDataStep implements InitializableStep {
 		setName(params.get("name"));
 	}
 
-	@Override
+	@StepMethod
 	public int execute(OperationContext context) {
 		context.setAttribute("name", name);
 		

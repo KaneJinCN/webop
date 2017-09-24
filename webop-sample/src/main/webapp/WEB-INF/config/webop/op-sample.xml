@@ -294,14 +294,14 @@
 		</step>
 	</operation>
 	
-	<operation uri="/sample/{return:(-1|[0-4]){1}}" name="Return Action Sample" method="GET">
+	<operation uri="/sample/{count:(-1|[0-4]){1}}" name="Return Action Sample" method="GET">
 		<description>
 		<![CDATA[
 			这是一个URL里带有参数的示例。
 		]]>
 		</description>
 		<step id="stepReturn"
-			class="cn.kanejin.webop.sample.opstep.ReturnActionStep">
+			class="cn.kanejin.webop.sample.opstep.PathVarStep">
 			<return-action>
 				<if return="0"><forward page="/jsp/sample/return0.jsp"/></if>
 				<if return="1"><forward page="/jsp/sample/return1.jsp"/></if>

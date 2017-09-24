@@ -18,7 +18,6 @@ import java.util.UUID;
 import static cn.kanejin.webop.core.Constants.*;
 
 /**
- * @version $Id: OperationContextImpl.java 167 2017-09-13 09:26:47Z Kane $
  * @author Kane Jin
  */
 public class OperationContextImpl implements OperationContext {
@@ -28,13 +27,20 @@ public class OperationContextImpl implements OperationContext {
 	private HttpServletResponse res;
 	private ServletContext sc;
 
-	@SuppressWarnings("unchecked")
 	public OperationContextImpl(HttpServletRequest req, HttpServletResponse res, ServletContext sc) {
 		this.req = req;
 		this.res = res;
 		this.sc = sc;
+
 		req.setAttribute("operationContext", this);
-		
+
+		initAttributesFromPreviousOperation();
+		initAttributesFromParameters();
+		initAttributesFromPathVariable();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void initAttributesFromPreviousOperation() {
 		// Add attributes from previous operation into request
 		HttpSession session = req.getSession(false);
 		if (session != null) {
@@ -43,9 +49,12 @@ public class OperationContextImpl implements OperationContext {
 			if (attrs != null)
 				for (String key : attrs.keySet()) {
 					req.setAttribute(key, attrs.get(key));
-				}			
+				}
 		}
+	}
 
+	@SuppressWarnings("unchecked")
+	private void initAttributesFromParameters() {
 		// Add parameters into attributes in request
 		Enumeration<String> paramEnum = req.getParameterNames();
 		while (paramEnum.hasMoreElements()) {
@@ -57,15 +66,22 @@ public class OperationContextImpl implements OperationContext {
 				req.setAttribute(name, req.getParameter(name));
 			}
 		}
-		
+	}
+
+	@SuppressWarnings("unchecked")
+	private void initAttributesFromPathVariable() {
 		// Add path variables into attributes in request
 		Map<String, String> pathVars =
-			(Map<String, String>) req.getAttribute(PATH_VAR);
-		
+				(Map<String, String>) req.getAttribute(PATH_VAR);
+
 		if (pathVars != null)
 			for (String key : pathVars.keySet())
 				req.setAttribute(key, pathVars.get(key));
+	}
 
+	@Override
+	public ServletContext getServletContext() {
+		return sc;
 	}
 
 	@Override
@@ -84,11 +100,6 @@ public class OperationContextImpl implements OperationContext {
 	}
 
 	@Override
-	public ServletContext getServletContext() {
-		return sc;
-	}
-
-	@Override
 	public String getParameter(String paramKey) {
 		return getAttribute(paramKey, String.class);
 	}
@@ -99,7 +110,19 @@ public class OperationContextImpl implements OperationContext {
 		
 		return result != null ? result : defaultValue;
 	}
-	
+
+	@Override
+	public String getPathVariable(String name) {
+
+		Map<String, String> pathVars =
+				(Map<String, String>) req.getAttribute(PATH_VAR);
+
+		if (pathVars != null)
+			return pathVars.get(name);
+
+		return null;
+	}
+
 	@Override
 	public boolean isMultipart() {
 		return req instanceof MultipartRequestWrapper;
@@ -107,20 +130,16 @@ public class OperationContextImpl implements OperationContext {
 
 	@Override
 	public Enumeration<String> getFileItemKeys() {
-		if (!isMultipart())
-			return null;
+		if (!isMultipart()) return null;
 
-		MultipartRequestWrapper mreq = (MultipartRequestWrapper) req;
-		return mreq.getFileItemKeys();
+		return ((MultipartRequestWrapper) req).getFileItemKeys();
 	}
 
 	@Override
 	public FileItem getFileItem(String fileItemKey) {
-		if (!isMultipart())
-			return null;
+		if (!isMultipart()) return null;
 
-		MultipartRequestWrapper mreq = (MultipartRequestWrapper) req;
-		return mreq.getFileItem(fileItemKey);
+		return ((MultipartRequestWrapper) req).getFileItem(fileItemKey);
 	}
 
 	@Override
