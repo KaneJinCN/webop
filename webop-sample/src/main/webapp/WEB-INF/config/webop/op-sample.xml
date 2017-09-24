@@ -294,7 +294,7 @@
 		</step>
 	</operation>
 	
-	<operation uri="/sample/{return}" name="Return Action Sample">
+	<operation uri="/sample/{return:[1-4]+}" name="Return Action Sample">
 		<description>
 		<![CDATA[
 			这是一个URL里带有参数的示例。
@@ -313,7 +313,7 @@
 		</step>
 	</operation>
 
-	<operation uri="/sample/infinite">
+	<operation uri="/sample/infinite" name="Infinite Loop Error Sample">
 		<step id="firstStep" class="cn.kanejin.webop.opstep.ForwardPage">
 			<return-action>
 				<if return="0"><next/></if>

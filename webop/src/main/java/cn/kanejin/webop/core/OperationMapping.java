@@ -11,24 +11,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import static cn.kanejin.commons.util.StringUtils.isBlank;
 
 /**
- * @version $Id: OperationMapping.java 168 2017-09-15 07:51:46Z Kane $
  * @author Kane Jin
  */
 public class OperationMapping {
 	private static final Logger log = LoggerFactory.getLogger(OperationMapping.class);
 
-	private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\{[^/]+}");
-
 	private static OperationMapping om;
 
-	private Map<String, Operation> ops = new HashMap<String, Operation>();
+	private Map<String, Operation> operations = new HashMap<>();
 
-	private List<String> oPatterns = new ArrayList<String>();
+	private List<PathVarURI> pathVarURIs = new ArrayList<>();
 
 	private OperationMapping() {}
 
@@ -44,23 +40,16 @@ public class OperationMapping {
 		}
 
 		for (String m : methods) {
-			String opId = joinUriAndMethod(uri, m);
-			ops.put(opId, op);
+			operations.put(generateOperationId(uri, m), op);
 		}
 
-		if (VARIABLE_PATTERN.matcher(uri).find())
-			oPatterns.add(uri);
-
+		if (PathVarURI.isPathVarURI(uri))
+			pathVarURIs.add(new PathVarURI(uri));
 	}
+
 
 	public boolean exists(String uri, String method) {
-		return ops.containsKey(joinUriAndMethod(uri, method));
-	}
-
-	private String joinUriAndMethod(String uri, String method) {
-		return isBlank(method)
-				? uri
-				: method + "_" + uri;
+		return operations.containsKey(generateOperationId(uri, method));
 	}
 
 
@@ -70,17 +59,19 @@ public class OperationMapping {
 
 		// Direct match
 		Operation op = findInOperations(uri, method);
-		if (op != null)
-			return op;
 
 		// 如果没找到，则在PatternOperation中匹配
-		return findInPatternOperation(req);
+		if (op == null) {
+			op = findInPatternOperation(req);
+		}
+
+		return op;
 	}
 
 	private Operation findInOperations(String uri, String method) {
-		Operation op = ops.get(uri);
+		Operation op = operations.get(uri);
 		if (op == null) {
-			op = ops.get(joinUriAndMethod(uri, method));
+			op = operations.get(generateOperationId(uri, method));
 		}
 
 		return op;
@@ -93,86 +84,49 @@ public class OperationMapping {
 		Cache<String, PatternOperation> cache =
 				WebopCacheManager.getInstance().getPatternOperationCache();
 
-		Operation op = null;
+		Operation operation = null;
 
 		// Pattern match
-		Map<String, String> pVars = null;
-		PatternOperation po = cache.get(uri);
+		Map<String, String> pathVars = null;
+		PatternOperation patternOperation = cache.get(uri);
 		// retrieve from cache
-		if (po != null) {
-			op = findInOperations(po.getOperationUri(), method);
-			pVars = po.getPathVariables();
+		if (patternOperation != null) {
+			operation = findInOperations(patternOperation.getUriPattern(), method);
+			pathVars = patternOperation.getPathVariables();
 		}
 		// have no cache
 		else {
-			List<String> matchingPatterns = new ArrayList<String>();
-			for (String uriPattern : oPatterns) {
-				if (match(uriPattern, uri))
-					matchingPatterns.add(uriPattern);
+			List<PathVarURI> matchedPathVarURIs = new ArrayList<>();
+			for (PathVarURI pathVarURI : pathVarURIs) {
+				if (pathVarURI.matches(uri))
+					matchedPathVarURIs.add(pathVarURI);
 			}
-			if (matchingPatterns.isEmpty())
+			if (matchedPathVarURIs.isEmpty())
 				return null;
 
-			// TODO multi pattern match?
-			String opId = matchingPatterns.get(0);
+			PathVarURI firstPathVarURI = matchedPathVarURIs.get(0);
 
-			op = ops.get(opId);
-			if (op == null) {
-				op = ops.get(joinUriAndMethod(opId, method));
-			}
+			operation = findInOperations(firstPathVarURI.uri, method);
 
-			if (op != null) {
-				pVars = parsePathVariables(op.getUri(), uri);
+			if (operation != null) {
+				pathVars = firstPathVarURI.extractPathVariables(uri);
 
-				cache.put(uri, new PatternOperation(op.getUri(), pVars));
+				cache.put(uri, new PatternOperation(operation.getUri(), pathVars));
 			}
 		}
 
-		if (op != null && pVars != null)
-			req.setAttribute(Constants.PATH_VAR, pVars);
+		if (operation != null && pathVars != null)
+			req.setAttribute(Constants.PATH_VAR, pathVars);
 
-		return op;
+		return operation;
 	}
 
-	private boolean match(String pattern, String uri) {
-
-		if (pattern == null || pattern.isEmpty() || uri == null || uri.isEmpty())
-			return false;
-
-		String[] patSplit = pattern.split("/");
-		String[] uriSplit = uri.split("/");
-
-		if (patSplit.length != uriSplit.length)
-			return false;
-
-		for (int i = 0; i < patSplit.length; i++) {
-			String p = patSplit[i];
-			String u = uriSplit[i];
-			if (p.startsWith("{") && p.endsWith("}")) {
-			} else {
-				if (!p.equals(u))
-					return false;
-			}
-		}
-
-		return true;
+	private String generateOperationId(String uri, String method) {
+		return isBlank(method)
+				? uri
+				: method + "_" + uri;
 	}
 
-	private Map<String, String> parsePathVariables(String pattern, String uri) {
-		Map<String, String> result = new HashMap<String, String>();
-
-		String[] patSplit = pattern.split("/");
-		String[] uriSplit = uri.split("/");
-
-		for (int i = 0; i < patSplit.length; i++) {
-			String p = patSplit[i];
-			String u = uriSplit[i];
-			if (p.startsWith("{") && p.endsWith("}")) {
-				result.put(p.substring(1, p.length() - 1), u);
-			}
-		}
-		return result;
-	}
 
 }
 
