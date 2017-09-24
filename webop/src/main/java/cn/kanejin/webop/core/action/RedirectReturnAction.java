@@ -17,7 +17,7 @@ public class RedirectReturnAction extends EndReturnAction {
 	}
 
 	@Override
-	public void handleAction(OperationContext oc) throws ServletException, IOException {
+	public void doActionInternal(OperationContext oc) throws ServletException, IOException {
 		oc.getResponse().sendRedirect(page);
 	}
 

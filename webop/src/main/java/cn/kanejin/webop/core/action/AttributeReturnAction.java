@@ -24,7 +24,7 @@ public class AttributeReturnAction extends EndReturnAction {
 	}
 
 	@Override
-	public void handleAction(OperationContext context)
+	public void doActionInternal(OperationContext context)
 			throws ServletException, IOException {
 
 		HttpServletRequest req = context.getRequest();

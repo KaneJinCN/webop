@@ -14,10 +14,10 @@ public abstract class EndReturnAction implements ReturnAction {
 			OperationStepDef stepDef,
 			OperationContext context) throws ServletException, IOException {
 
-		handleAction(context);
+		doActionInternal(context);
 
 		return null;
 	}
 
-	protected abstract void handleAction(OperationContext context) throws ServletException, IOException;
+	protected abstract void doActionInternal(OperationContext context) throws ServletException, IOException;
 }

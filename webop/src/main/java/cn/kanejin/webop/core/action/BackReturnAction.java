@@ -20,7 +20,7 @@ public class BackReturnAction extends EndReturnAction {
 	private BackReturnAction() {}
 
 	@Override
-	public void handleAction(OperationContext context) throws ServletException, IOException {
+	public void doActionInternal(OperationContext context) throws ServletException, IOException {
 
 		HttpServletRequest req = context.getRequest();
 		HttpServletResponse res = context.getResponse();

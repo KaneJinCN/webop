@@ -19,7 +19,7 @@ public class ErrorReturnAction extends EndReturnAction {
 	private ErrorReturnAction() {}
 
 	@Override
-	public void handleAction(OperationContext context) throws ServletException, IOException {
+	public void doActionInternal(OperationContext context) throws ServletException, IOException {
 		throw new ServletException(context.getRequest().getRequestURI() + " error");
 	}
 	

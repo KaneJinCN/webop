@@ -29,7 +29,7 @@ public class XmlReturnAction extends EndReturnAction {
 	}
 
 	@Override
-	public void handleAction(OperationContext oc) throws ServletException, IOException {
+	public void doActionInternal(OperationContext oc) throws ServletException, IOException {
 		HttpServletRequest req = oc.getRequest();
 		HttpServletResponse res = oc.getResponse();
 

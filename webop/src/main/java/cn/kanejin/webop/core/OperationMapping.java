@@ -126,7 +126,5 @@ public class OperationMapping {
 				? uri
 				: method + "_" + uri;
 	}
-
-
 }
 

@@ -26,7 +26,7 @@ class PathVarURI {
     public PathVarURI(String pattern) {
         this.uri = pattern;
         this.regex = toRegex(pattern);
-        this.names = extractVarNames(pattern);
+        this.names = extractVariableNames(pattern);
     }
 
     public boolean matches(String uri) {
@@ -53,7 +53,7 @@ class PathVarURI {
     }
 
     public static boolean isPathVarURI(String uri) {
-        return VARIABLE_PATTERN.matcher(uri).matches();
+        return VARIABLE_PATTERN.matcher(uri).find();
     }
 
     private static String toRegex(String pattern) {
@@ -87,7 +87,7 @@ class PathVarURI {
         return regex;
     }
 
-    private static String[] extractVarNames(String pattern) {
+    private static String[] extractVariableNames(String pattern) {
 
         Matcher patternMatcher = VARIABLE_PATTERN.matcher(pattern);
 

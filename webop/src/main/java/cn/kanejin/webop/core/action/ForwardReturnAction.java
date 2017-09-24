@@ -18,7 +18,7 @@ public class ForwardReturnAction extends EndReturnAction {
 	}
 
 	@Override
-	public void handleAction(OperationContext oc) throws ServletException, IOException {
+	public void doActionInternal(OperationContext oc) throws ServletException, IOException {
 		oc.getServletContext().getRequestDispatcher(page).forward(oc.getRequest(), oc.getResponse());
 	}
 

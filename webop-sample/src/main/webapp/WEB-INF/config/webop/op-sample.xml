@@ -294,7 +294,7 @@
 		</step>
 	</operation>
 	
-	<operation uri="/sample/{return:[1-4]+}" name="Return Action Sample">
+	<operation uri="/sample/{return:(-1|[0-4]){1}}" name="Return Action Sample" method="GET">
 		<description>
 		<![CDATA[
 			这是一个URL里带有参数的示例。
