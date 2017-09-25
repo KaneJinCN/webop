@@ -85,8 +85,9 @@ public class OperationStepExecutor {
         for (Method method : methods) {
             if (method.isAnnotationPresent(StepMethod.class)) {
 
-                if (!method.getReturnType().equals(Integer.class)) {
-                    throw new OperationException("@StepMethod must return a Integer");
+                if (!method.getReturnType().equals(int.class)
+                        && !method.getReturnType().equals(Integer.class)) {
+                    throw new OperationException("@StepMethod's return type must be int or Integer");
                 }
 
                 return method;
