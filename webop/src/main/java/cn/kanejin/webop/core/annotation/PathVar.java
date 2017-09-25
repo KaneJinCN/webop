@@ -12,4 +12,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 public @interface PathVar {
     String name();
+
+    String ifNull();
+
+    String ifEmpty();
 }

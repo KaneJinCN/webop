@@ -12,4 +12,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 public @interface Param {
     String name() default "";
+
+    String ifNull();
+
+    String ifEmpty();
 }
