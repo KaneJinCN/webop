@@ -7,6 +7,7 @@ import cn.kanejin.webop.core.annotation.PathVar;
 import cn.kanejin.webop.core.annotation.StepMethod;
 import cn.kanejin.webop.core.def.OperationDef;
 import cn.kanejin.webop.core.def.OperationStepDef;
+import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -45,11 +47,11 @@ public class OperationStepExecutor {
 
         Method stepMethod = getStepMethod(step);
 
-        Object[] stepArgs = resolveParams(stepMethod, context);
+        Object[] stepParams = resolveParams(stepMethod, context);
 
         int retValue;
         try {
-            retValue = (Integer) stepMethod.invoke(step, stepArgs);
+            retValue = (Integer) stepMethod.invoke(step, stepParams);
         } catch (Throwable e) {
             throw new OperationException(
                     "Operation[" + operationDef.getUri() + "] Step[" + stepDef.getId() +
@@ -115,70 +117,120 @@ public class OperationStepExecutor {
         Object[] args = new Object[params.length];
 
         for (int i = 0; i < params.length; i++) {
-            Parameter p = params[i];
-
-            if (p.getType().equals(OperationContext.class)) {
-                args[i] = context;
-            } else if (p.getType().equals(HttpServletRequest.class)) {
-                args[i] = context.getRequest();
-            } else if (p.getType().equals(HttpServletResponse.class)) {
-                args[i] = context.getResponse();
-            } else {
-                if (p.isAnnotationPresent(Param.class)) {
-                    Param ann = p.getAnnotation(Param.class);
-
-                    String paramName = ann.name();
-
-                    String paramValue = context.getRequest().getParameter(paramName);
-
-                    if (paramValue == null && isNotBlank(ann.ifNull())) {
-                        paramValue = ann.ifNull();
-                    }
-                    if (isEmpty(paramValue) && isNotBlank(ann.ifEmpty())) {
-                        paramValue = ann.ifEmpty();
-                    }
-
-                    args[i] = castParamType(
-                            paramValue,
-                            p.getType());
-
-                } else if (p.isAnnotationPresent(PathVar.class)) {
-                    PathVar ann = p.getAnnotation(PathVar.class);
-
-                    String paramName = ann.name();
-                    String paramValue = context.getPathVariable(paramName);
-
-                    if (paramValue == null && isNotBlank(ann.ifNull())) {
-                        paramValue = ann.ifNull();
-                    }
-                    if (isEmpty(paramValue) && isNotBlank(ann.ifEmpty())) {
-                        paramValue = ann.ifEmpty();
-                    }
-
-                    args[i] = castParamType(
-                            paramValue,
-                            p.getType());
-
-                } else if (p.isAnnotationPresent(Attr.class)) {
-                    Attr ann = p.getAnnotation(Attr.class);
-
-                    String paramName = ann.name();
-
-                    args[i] = context.getAttribute(paramName);
-                } else {
-                    if (p.isNamePresent()) {
-                        args[i] = castParamType(
-                                context.getRequest().getParameter(p.getName()),
-                                p.getType());
-
-                    } else {
-                        throw new OperationException("Step Method parameter name is not specified");
-                    }
-                }
-            }
+            args[i] = resolveParam(params[i], context);
         }
 
         return args;
+    }
+
+    public Object resolveParam(Parameter p, OperationContext context) {
+        if (p.getType().equals(OperationContext.class)) {
+            return context;
+        } else if (p.getType().equals(HttpServletRequest.class)) {
+            return context.getRequest();
+        } else if (p.getType().equals(HttpServletResponse.class)) {
+            return context.getResponse();
+        } else {
+            if (p.isAnnotationPresent(Param.class)) {
+                return resolveRequestParameter(p, context);
+            } else if (p.isAnnotationPresent(PathVar.class)) {
+                return resolvePathVariable(p, context);
+            } else if (p.isAnnotationPresent(Attr.class)) {
+                return resolveAttribute(p, context);
+            } else {
+                return resolveNoAnnParam(p, context);
+            }
+        }
+    }
+
+    private Object resolveNoAnnParam(Parameter p, OperationContext context) {
+        if (p.isNamePresent()) {
+            return castParamType(
+                    context.getRequest().getParameter(p.getName()),
+                    p.getType());
+
+        } else {
+            throw new OperationException("Step Method parameter name is not specified");
+        }
+
+    }
+
+    private Object resolveRequestParameter(Parameter p, OperationContext context) {
+        Param ann = p.getAnnotation(Param.class);
+
+        String paramName = ann.name();
+
+        Object obj = null;
+        if (p.getType().equals(FileItem.class)) { // 如果是上传文件的情况
+
+            obj = context.getFileItem(paramName);
+
+        } else if (p.getType().isArray()) { // 如果是数组的情况
+
+            String[] paramValues = context.getRequest().getParameterValues(paramName + "[]");
+
+            if (paramValues == null && isNotBlank(ann.ifNull())) {
+                paramValues = new String[]{ann.ifNull()};
+            }
+            if (paramValues != null && paramValues.length == 0 && isNotBlank(ann.ifEmpty())) {
+                paramValues = new String[]{ann.ifEmpty()};
+            }
+
+            obj = castArrayParamType(paramValues, p.getType().getComponentType());
+
+        } else {
+            String paramValue = context.getRequest().getParameter(paramName);
+
+            if (paramValue == null && isNotBlank(ann.ifNull())) {
+                paramValue = ann.ifNull();
+            }
+            if (isEmpty(paramValue) && isNotBlank(ann.ifEmpty())) {
+                paramValue = ann.ifEmpty();
+            }
+
+            obj = castParamType(paramValue, p.getType());
+        }
+
+        return obj;
+    }
+
+    private Object resolvePathVariable(Parameter p, OperationContext context) {
+        PathVar ann = p.getAnnotation(PathVar.class);
+
+        String paramName = ann.name();
+        String paramValue = context.getPathVariable(paramName);
+
+        if (paramValue == null && isNotBlank(ann.ifNull())) {
+            paramValue = ann.ifNull();
+        }
+        if (isEmpty(paramValue) && isNotBlank(ann.ifEmpty())) {
+            paramValue = ann.ifEmpty();
+        }
+
+        return castParamType(paramValue, p.getType());
+    }
+
+    public Object resolveAttribute(Parameter p, OperationContext context) {
+        Attr ann = p.getAnnotation(Attr.class);
+
+        return context.getAttribute(ann.name());
+    }
+
+    private <T> T[] castArrayParamType(String[] paramValues, Class<T> paramComponentType) {
+        if (paramValues == null)
+            return null;
+
+        if (paramComponentType.equals(String.class)) {
+            return (T[]) paramValues;
+        }
+
+        T[] result = (T[]) Array.newInstance(paramComponentType, paramValues.length);
+
+        for (int i = 0; i < paramValues.length; i++) {
+            result[i] = (T) castParamType(paramValues[i], paramComponentType);
+        }
+
+        return result;
     }
 
     /**
@@ -195,10 +247,12 @@ public class OperationStepExecutor {
      *
      * @return
      */
-    private Object castParamType(String paramValue, Class<?> paramType) {
+    private <T> T castParamType(String paramValue, Class<T> paramType) {
+        if (paramValue == null)
+            return null;
 
         if (paramType.equals(String.class)) {
-            return paramType;
+            return (T) paramValue;
         }
 
         Constructor[] cons = paramType.getDeclaredConstructors();
@@ -207,7 +261,7 @@ public class OperationStepExecutor {
         Constructor stringConstructor = null;
         if (cons != null) {
             for (Constructor c : cons) {
-                Class<?>[] consParamTypes =  c.getParameterTypes();
+                Class<?>[] consParamTypes = c.getParameterTypes();
 
                 if (consParamTypes != null
                         && consParamTypes.length == 1
@@ -224,7 +278,7 @@ public class OperationStepExecutor {
         }
 
         try {
-            return stringConstructor.newInstance(paramValue);
+            return (T) stringConstructor.newInstance(paramValue);
         } catch (Throwable e) {
             log.warn("Create Instance of " + paramType + " from String \"" + paramValue + "\" Error", e);
 
