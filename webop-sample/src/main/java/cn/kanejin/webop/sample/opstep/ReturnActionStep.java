@@ -5,8 +5,6 @@ import cn.kanejin.webop.core.OperationStep;
 import cn.kanejin.webop.core.annotation.Param;
 import cn.kanejin.webop.core.annotation.StepMethod;
 
-import java.math.BigDecimal;
-
 public class ReturnActionStep implements OperationStep {
 
 	@StepMethod

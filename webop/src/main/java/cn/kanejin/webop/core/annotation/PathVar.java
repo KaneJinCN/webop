@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 public @interface PathVar {
     String name();
 
-    String ifNull();
+    String ifNull() default "";
 
-    String ifEmpty();
+    String ifEmpty() default "";
 }

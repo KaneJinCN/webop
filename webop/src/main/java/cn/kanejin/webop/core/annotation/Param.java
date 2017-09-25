@@ -11,9 +11,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Param {
-    String name() default "";
+    String name();
 
-    String ifNull();
+    String ifNull() default "";
 
-    String ifEmpty();
+    String ifEmpty() default "";
 }
