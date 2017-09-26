@@ -10,16 +10,18 @@ public class ReturnActionStep implements OperationStep {
 
 	@StepMethod
 	public int execute(OperationContext context,
-					   @Param(name = "return") Integer returnValue,
+					   @Param(name = "name") String name,
+					   @Param(name = "age", ifEmpty = "20") Integer age,
 					   @Param(name = "avatar") FileItem avatar,
-					   @Param(name = "followers") String[] followers,
-					   @Param(name = "numbers") Integer[] numbers
+					   @Param(name = "followers") String[] followers
 	) {
 
-		if (returnValue == null)
-			return 0;
+		System.out.println(name);
+		System.out.println(age);
+		System.out.println(avatar);
+		System.out.println(followers);
 
-		return returnValue.intValue();
+		return 0;
 	}
 
 }
