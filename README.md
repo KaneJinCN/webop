@@ -19,9 +19,16 @@ webop是一个java webapp的MVC框架
     <operation uri="/sample/next" name="Next Sample" method="GET">
         <description>
         <![CDATA[
-            这是一个如何使用<next>的一个示例
+            这是一个如何使用webop的一个示例
         ]]>
         </description>
+		<cache>
+			<expiry>
+				<ttl unit="minutes">30</ttl>
+			</expiry>
+			<key-field>name</key-field>
+			<key-field>age</key-field>
+		</cache>
         <interceptor ref="helloInterceptor" />
         <interceptor ref="worldInterceptor" />
         <step id="stepNext"
