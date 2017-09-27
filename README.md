@@ -53,21 +53,21 @@ webop是一个java webapp的MVC框架
     ```java
     public class ReturnActionStep implements OperationStep {
     
-    	@StepMethod
-    	public int execute(OperationContext context,
-    					   @Param(name = "name") String name,
-    					   @Param(name = "age", ifEmpty = "20") Integer age,
-    					   @Param(name = "avatar") FileItem avatar,
-    					   @Param(name = "followers") String[] followers
+        @StepMethod
+        public int execute(OperationContext context,
+                           @Param(name = "name") String name,
+                           @Param(name = "age", ifEmpty = "20") Integer age,
+                           @Param(name = "avatar") FileItem avatar,
+                           @Param(name = "followers") String[] followers
     	) {
     
-    		System.out.println(name);
-    		System.out.println(age);
-    		System.out.println(avatar);
-    		System.out.println(followers);
+            System.out.println(name);
+            System.out.println(age);
+            System.out.println(avatar);
+            System.out.println(followers);
     
-    		return 0;
-    	}
+            return 0;
+        }
     }
     ```
 
