@@ -22,13 +22,13 @@ webop是一个java webapp的MVC框架
             这是一个如何使用webop的一个示例
         ]]>
         </description>
-		<cache>
-			<expiry>
-				<ttl unit="minutes">30</ttl>
-			</expiry>
-			<key-field>name</key-field>
-			<key-field>age</key-field>
-		</cache>
+        <cache>
+            <expiry>
+                <ttl unit="minutes">30</ttl>
+            </expiry>
+            <key-field>name</key-field>
+            <key-field>age</key-field>
+        </cache>
         <interceptor ref="helloInterceptor" />
         <interceptor ref="worldInterceptor" />
         <step id="stepNext"
@@ -53,21 +53,21 @@ webop是一个java webapp的MVC框架
     ```java
     public class ReturnActionStep implements OperationStep {
     
-    	@StepMethod
-    	public int execute(OperationContext context,
-    					   @Param(name = "name") String name,
-    					   @Param(name = "age", ifEmpty = "20") Integer age,
-    					   @Param(name = "avatar") FileItem avatar,
-    					   @Param(name = "followers") String[] followers
+        @StepMethod
+        public int execute(OperationContext context,
+                           @Param(name = "name") String name,
+                           @Param(name = "age", ifEmpty = "20") Integer age,
+                           @Param(name = "avatar") FileItem avatar,
+                           @Param(name = "followers") String[] followers
     	) {
     
-    		System.out.println(name);
-    		System.out.println(age);
-    		System.out.println(avatar);
-    		System.out.println(followers);
+            System.out.println(name);
+            System.out.println(age);
+            System.out.println(avatar);
+            System.out.println(followers);
     
-    		return 0;
-    	}
+            return 0;
+        }
     }
     ```
 
