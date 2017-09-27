@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -56,19 +57,19 @@ public class Operation implements Serializable {
 
 	private void executeStep(OperationContext context, OperationStepDef stepDef, int stepCount) throws ServletException, IOException {
 
-		if (stepCount++ > 100) {
+		if (stepCount > 100) {
 			throw new OperationException("Operation[" + getUri() + "] has too many steps");
 		}
 
 		OperationStepDef nextStepDef =
 				OperationStepExecutor.getInstance().execute(context, operationDef, stepDef);
 
-		// 如果没有下一个Step，则退出
-		if (nextStepDef == null) {
+		// 如果有下一个Step，递归继续执行Step，否则退出
+		if (nextStepDef != null) {
+			executeStep(context, nextStepDef, ++stepCount);
+		} else {
 			return ;
 		}
-
-		executeStep(context, nextStepDef, stepCount);
 	}
 
 	public String getUri() {
@@ -79,16 +80,6 @@ public class Operation implements Serializable {
 		return operationDef.getName();
 	}
 
-	private String arrayToString(String[] src) {
-		if (src == null || src.length == 0)
-			return "";
-		String result = src[0];
-		for (int i = 1; i < src.length; i++) {
-			result += "," + src[i];
-		}
-		return result;
-	}
-	
 	@Override
 	public String toString() {
 		return getUri();
@@ -124,7 +115,7 @@ public class Operation implements Serializable {
 				String name = paramEnum.nextElement();
 				if (name.endsWith("[]")) {
 					String[] value = context.getRequest().getParameterValues(name);
-					log.debug("%%%% [{}] = [{}]", name.substring(0, name.length() - 2), arrayToString(value));
+					log.debug("%%%% [{}] = {}", name.substring(0, name.length() - 2), Arrays.toString(value));
 				} else {
 					String value = context.getRequest().getParameter(name);
 					log.debug("%%%% [{}] = [{}]", name, value);

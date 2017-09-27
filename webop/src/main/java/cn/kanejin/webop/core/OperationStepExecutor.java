@@ -96,7 +96,7 @@ public class OperationStepExecutor {
             }
         }
 
-        throw new OperationException("There is not a @StepMethod in the Step class");
+        throw new OperationException("No @StepMethod found in the Step class");
     }
 
 
@@ -227,7 +227,7 @@ public class OperationStepExecutor {
         T[] result = (T[]) Array.newInstance(paramComponentType, paramValues.length);
 
         for (int i = 0; i < paramValues.length; i++) {
-            result[i] = (T) castParamType(paramValues[i], paramComponentType);
+            result[i] = castParamType(paramValues[i], paramComponentType);
         }
 
         return result;

@@ -39,7 +39,7 @@ public class DispatcherFilter extends IgnoreUriFilter {
 			throws IOException, ServletException {
 
 		if (ignoreURI(req)) {
-			log.trace("Request[{}] is ignored", req.getRequestURI());
+			log.trace("Ignore request[{}]", req.getRequestURI());
 			chain.doFilter(req, res);
 
 			return ;
@@ -48,11 +48,11 @@ public class DispatcherFilter extends IgnoreUriFilter {
 		Operation op = OperationMapping.getInstance().getOperation(req);
 
 		if(op == null) {
-			log.warn("No operation found for HTTP request with URI [{}] Method [{}]", req.getRequestURI(), req.getMethod());
+			log.debug("No operation found: URI [{}] Method [{}]", req.getRequestURI(), req.getMethod());
 			chain.doFilter(req, res);
 		} else {
 			log.info("URI = [{}], Method = [{}], Operation URI = [{}]", req.getRequestURI(), req.getMethod(), op.getUri());
-			log.info("User-Agent = [{}]", req.getHeader("User-Agent"));
+			log.trace("User-Agent = [{}]", req.getHeader("User-Agent"));
 
 			if (op.needCached()) {
 				String key = generateCacheKey(op.getCacheDef(), req);

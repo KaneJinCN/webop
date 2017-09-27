@@ -8,8 +8,6 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 
 public class ResponseReturnAction extends EndReturnAction {
-	private static final Logger log = LoggerFactory.getLogger(ResponseReturnAction.class);
-
 	public static ResponseReturnAction getInstance(String statusString) {
 		try {
 			return new ResponseReturnAction(Integer.parseInt(statusString));
