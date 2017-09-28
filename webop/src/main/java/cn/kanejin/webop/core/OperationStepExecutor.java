@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -268,7 +269,27 @@ public class OperationStepExecutor {
     public Object resolveAttribute(Parameter p, OperationContext context) {
         Attr ann = p.getAnnotation(Attr.class);
 
-        return context.getAttribute(ann.name());
+        Object obj = null;
+
+        switch (ann.scope()) {
+            case REQUEST:
+                obj = context.getRequest().getAttribute(ann.name());
+
+                break;
+            case SESSION:
+                HttpSession session = context.getRequest().getSession(false);
+
+                if (session != null) {
+                    obj = session.getAttribute(ann.name());
+                }
+
+                break;
+
+            default:
+                break;
+        }
+
+        return obj;
     }
 
     /**

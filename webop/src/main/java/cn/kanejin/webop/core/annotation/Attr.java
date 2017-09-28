@@ -11,5 +11,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Attr {
+
+    enum Scope {
+        REQUEST,
+        SESSION
+    }
+
     String name();
+
+    Scope scope() default Scope.REQUEST;
 }
