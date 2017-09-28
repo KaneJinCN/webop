@@ -16,4 +16,9 @@ public @interface Param {
     String ifNull() default "";
 
     String ifEmpty() default "";
+
+    /**
+     * 当数据目标类型为Date时，可以指定Format格式
+     */
+    String pattern() default "";
 }

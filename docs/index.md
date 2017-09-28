@@ -57,14 +57,25 @@ webop是一个java webapp的MVC框架
         public int execute(OperationContext context,
                            @Param(name = "name") String name,
                            @Param(name = "age", ifEmpty = "20") Integer age,
+                           @Param(name = "dob", pattern = "yyyy-MM-dd") Date dob,
+                           @Param(name = "height") Float height,
+                           @Param(name = "weight") Double weight,
+                           @Param(name = "male", ifEmpty = "true") Boolean isMale,
                            @Param(name = "avatar") FileItem avatar,
-                           @Param(name = "followers") String[] followers
-    	) {
+                           @Param(name = "followers") String[] followers,
+                           @Param(name = "favoriteIds") Long[] favoriteIds,
+                           @Param(name = "balance") BigDecimal balance) {
     
             System.out.println(name);
             System.out.println(age);
+            System.out.println(dob);
+            System.out.println(height);
+            System.out.println(weight);
+            System.out.println(isMale);
             System.out.println(avatar);
             System.out.println(followers);
+            System.out.println(favoriteIds);
+            System.out.println(balance);
     
             return 0;
         }

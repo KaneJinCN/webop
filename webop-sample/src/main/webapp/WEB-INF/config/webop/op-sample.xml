@@ -9,6 +9,12 @@
 			这是一个如何使用<forward>的一个示例
 		]]>
 		</description>
+		<cache>
+			<expiry>
+				<eternal/>
+			</expiry>
+			<key-field>name</key-field>
+		</cache>
 		<interceptor ref="helloInterceptor" />
 		<interceptor ref="worldInterceptor" />
 		<step id="stepToForwardPage"
@@ -273,14 +279,6 @@
 			这是一个如何使用<if>根据Step不同的返回值，执行不同的action的示例。
 		]]>
 		</description>
-		<cache>
-			<expiry>
-				<eternal/>
-			</expiry>
-			<key-field>return</key-field>
-			<key-field>name</key-field>
-		</cache>
-
 		<step id="stepReturn"
 			class="cn.kanejin.webop.sample.opstep.ReturnActionStep">
 			<return-action>

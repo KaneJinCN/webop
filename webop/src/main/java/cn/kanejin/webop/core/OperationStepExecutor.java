@@ -1,5 +1,6 @@
 package cn.kanejin.webop.core;
 
+import cn.kanejin.commons.util.DateUtils;
 import cn.kanejin.webop.core.action.ReturnAction;
 import cn.kanejin.webop.core.annotation.Attr;
 import cn.kanejin.webop.core.annotation.Param;
@@ -19,9 +20,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Collection;
+import java.util.Date;
 
-import static cn.kanejin.commons.util.StringUtils.isEmpty;
-import static cn.kanejin.commons.util.StringUtils.isNotBlank;
+import static cn.kanejin.commons.util.StringUtils.*;
 
 /**
  * @author Kane Jin
@@ -47,7 +49,7 @@ public class OperationStepExecutor {
 
         Method stepMethod = getStepMethod(step);
 
-        Object[] stepParams = resolveParams(stepMethod, context);
+        Object[] stepParams = resolveStepParams(stepMethod, context);
 
         int retValue;
         try {
@@ -87,8 +89,8 @@ public class OperationStepExecutor {
         for (Method method : methods) {
             if (method.isAnnotationPresent(StepMethod.class)) {
 
-                if (!method.getReturnType().equals(int.class)
-                        && !method.getReturnType().equals(Integer.class)) {
+                if (!method.getReturnType().isAssignableFrom(int.class)
+                        && !method.getReturnType().isAssignableFrom(Integer.class)) {
                     throw new OperationException("@StepMethod's return type must be int or Integer");
                 }
 
@@ -107,7 +109,7 @@ public class OperationStepExecutor {
      * @param context
      * @return
      */
-    private Object[] resolveParams(Method stepMethod, OperationContext context) {
+    private Object[] resolveStepParams(Method stepMethod, OperationContext context) {
 
         Parameter[] params = stepMethod.getParameters();
 
@@ -117,18 +119,18 @@ public class OperationStepExecutor {
         Object[] args = new Object[params.length];
 
         for (int i = 0; i < params.length; i++) {
-            args[i] = resolveParam(params[i], context);
+            args[i] = resolveStepParam(params[i], context);
         }
 
         return args;
     }
 
-    public Object resolveParam(Parameter p, OperationContext context) {
-        if (p.getType().equals(OperationContext.class)) {
+    public Object resolveStepParam(Parameter p, OperationContext context) {
+        if (p.getType().isAssignableFrom(OperationContext.class)) {
             return context;
-        } else if (p.getType().equals(HttpServletRequest.class)) {
+        } else if (p.getType().isAssignableFrom(HttpServletRequest.class)) {
             return context.getRequest();
-        } else if (p.getType().equals(HttpServletResponse.class)) {
+        } else if (p.getType().isAssignableFrom(HttpServletResponse.class)) {
             return context.getResponse();
         } else {
             if (p.isAnnotationPresent(Param.class)) {
@@ -143,52 +145,34 @@ public class OperationStepExecutor {
         }
     }
 
-    private Object resolveNoAnnParam(Parameter p, OperationContext context) {
-        if (p.isNamePresent()) {
-            return castParamType(
-                    context.getRequest().getParameter(p.getName()),
-                    p.getType());
-
-        } else {
-            throw new OperationException("Step Method parameter name is not specified");
-        }
-
-    }
 
     private Object resolveRequestParameter(Parameter p, OperationContext context) {
         Param ann = p.getAnnotation(Param.class);
 
-        String paramName = ann.name();
-
         Object obj = null;
-        if (p.getType().equals(FileItem.class)) { // 如果是上传文件的情况
+        if (p.getType().isAssignableFrom(FileItem.class)) { // 目标类型为上传文件
 
-            obj = context.getFileItem(paramName);
+            obj = context.getFileItem(ann.name());
 
-        } else if (p.getType().isArray()) { // 如果是数组的情况
+        } else if (p.getType().isAssignableFrom(Date.class)) { // 目标类型为日期
+            obj = castDateParamType(
+                    getParamValue(context.getRequest(), ann),
+                    ann.pattern());
+        } else if (p.getType().isArray()) { // 目标类型为Array
 
-            String[] paramValues = context.getRequest().getParameterValues(paramName + "[]");
+            obj = castArrayParamType(
+                    getArrayParamValues(context.getRequest(), ann),
+                    p.getType().getComponentType());
 
-            if (paramValues == null && isNotBlank(ann.ifNull())) {
-                paramValues = new String[]{ann.ifNull()};
-            }
-            if (paramValues != null && paramValues.length == 0 && isNotBlank(ann.ifEmpty())) {
-                paramValues = new String[]{ann.ifEmpty()};
-            }
+        } else if (Collection.class.isAssignableFrom(p.getType())) { // 目标类型为Collection
 
-            obj = castArrayParamType(paramValues, p.getType().getComponentType());
+            throw new OperationException("@Param(name = \"" + ann.name() + "\") error: " +
+                    "Collection Type is not supported, Please use Array instead");
 
-        } else {
-            String paramValue = context.getRequest().getParameter(paramName);
-
-            if (paramValue == null && isNotBlank(ann.ifNull())) {
-                paramValue = ann.ifNull();
-            }
-            if (isEmpty(paramValue) && isNotBlank(ann.ifEmpty())) {
-                paramValue = ann.ifEmpty();
-            }
-
-            obj = castParamType(paramValue, p.getType());
+        } else { // 目标类型为其它，使用参数为String的构造器转换
+            obj = castGeneralParamType(
+                    getParamValue(context.getRequest(), ann),
+                    p.getType());
         }
 
         return obj;
@@ -197,6 +181,77 @@ public class OperationStepExecutor {
     private Object resolvePathVariable(Parameter p, OperationContext context) {
         PathVar ann = p.getAnnotation(PathVar.class);
 
+        String pathVariableValue = getPathVariableValue(context, ann);
+
+        Object obj = null;
+
+        if (p.getType().isAssignableFrom(Date.class)) { // 目标类型为日期
+            obj = castDateParamType(pathVariableValue, ann.pattern());
+
+        } else { // 目标类型为其它，使用参数为String的构造器转换
+            obj = castGeneralParamType(pathVariableValue, p.getType());
+        }
+
+        return obj;
+    }
+
+    /**
+     * 解析没有注解的参数。
+     *
+     * <p>
+     * 根据参数的真实名称，在Request中查找参数值，
+     * 如果编译时参数的真实名称没有保持，则抛出异常
+     *
+     * @param p
+     * @param context
+     * @return
+     */
+    private Object resolveNoAnnParam(Parameter p, OperationContext context) {
+        if (p.isNamePresent()) {
+            return castGeneralParamType(
+                    context.getRequest().getParameter(p.getName()),
+                    p.getType());
+        } else {
+            throw new OperationException("Step Method parameter name is not specified");
+        }
+    }
+
+
+    /**
+     * 从Request中获取参数值，当为null或空时，根据Param注解的配置设置默认值
+     */
+    private String getParamValue(HttpServletRequest request, Param ann) {
+        String paramValue = request.getParameter(ann.name());
+
+        if (paramValue == null && isNotBlank(ann.ifNull())) {
+            paramValue = ann.ifNull();
+        }
+        if (isEmpty(paramValue) && isNotBlank(ann.ifEmpty())) {
+            paramValue = ann.ifEmpty();
+        }
+
+        return paramValue;
+    }
+    /**
+     * 从Request中获取数组参数值，当为null或空时，根据Param注解的配置设置默认值
+     */
+    private String[] getArrayParamValues(HttpServletRequest request, Param ann) {
+        String[] paramValues = request.getParameterValues(ann.name() + "[]");
+
+        if (paramValues == null && isNotBlank(ann.ifNull())) {
+            paramValues = new String[]{ann.ifNull()};
+        }
+        if (paramValues != null && paramValues.length == 0 && isNotBlank(ann.ifEmpty())) {
+            paramValues = new String[]{ann.ifEmpty()};
+        }
+
+        return paramValues;
+    }
+
+    /**
+     * 获取路径参数的值，当为null或空时，根据PathVar注解的配置设置默认值
+     */
+    private String getPathVariableValue(OperationContext context, PathVar ann) {
         String paramName = ann.name();
         String paramValue = context.getPathVariable(paramName);
 
@@ -207,7 +262,7 @@ public class OperationStepExecutor {
             paramValue = ann.ifEmpty();
         }
 
-        return castParamType(paramValue, p.getType());
+        return paramValue;
     }
 
     public Object resolveAttribute(Parameter p, OperationContext context) {
@@ -216,18 +271,41 @@ public class OperationStepExecutor {
         return context.getAttribute(ann.name());
     }
 
+    /**
+     * 把日期字符串根据指定的格式转换成Date类型
+     *
+     * @param paramValue 日期字符串
+     * @param pattern 日期格式
+     * @return 转换后的Date
+     */
+    private Date castDateParamType(String paramValue, String pattern) {
+        if (isBlank(pattern)) {
+            throw new OperationException("Date's pattern is required");
+        }
+
+        return DateUtils.parseDate(paramValue, pattern);
+    }
+
+    /**
+     * 转换数组类型
+     *
+     * @param paramValues 字符串数组
+     * @param paramComponentType 数据元素类型
+     *
+     * @return 转换后的数组
+     */
     private <T> T[] castArrayParamType(String[] paramValues, Class<T> paramComponentType) {
         if (paramValues == null)
             return null;
 
-        if (paramComponentType.equals(String.class)) {
+        if (paramComponentType.isAssignableFrom(String.class)) {
             return (T[]) paramValues;
         }
 
         T[] result = (T[]) Array.newInstance(paramComponentType, paramValues.length);
 
         for (int i = 0; i < paramValues.length; i++) {
-            result[i] = castParamType(paramValues[i], paramComponentType);
+            result[i] = castGeneralParamType(paramValues[i], paramComponentType);
         }
 
         return result;
@@ -245,13 +323,13 @@ public class OperationStepExecutor {
      * @param paramValue 参数值（字符串）
      * @param paramType 目标类型
      *
-     * @return
+     * @return 转换类型后的值
      */
-    private <T> T castParamType(String paramValue, Class<T> paramType) {
+    private <T> T castGeneralParamType(String paramValue, Class<T> paramType) {
         if (paramValue == null)
             return null;
 
-        if (paramType.equals(String.class)) {
+        if (paramType == null || paramType.isAssignableFrom(String.class)) {
             return (T) paramValue;
         }
 
@@ -265,7 +343,7 @@ public class OperationStepExecutor {
 
                 if (consParamTypes != null
                         && consParamTypes.length == 1
-                        && consParamTypes[0].equals(String.class)) {
+                        && consParamTypes[0].isAssignableFrom(String.class)) {
                     stringConstructor = c;
                     break;
                 }
