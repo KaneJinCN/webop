@@ -2,7 +2,7 @@
 
 *.iml
 
-webop-sample/target/
-
 webop/target/
+webop-spring/target/
+webop-sample/target/
 

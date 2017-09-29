@@ -1,7 +1,6 @@
 package cn.kanejin.webop.cache;
 
 import cn.kanejin.webop.core.Converter;
-import cn.kanejin.webop.core.OperationStep;
 import cn.kanejin.webop.core.PatternOperation;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -24,7 +23,6 @@ public class WebopCacheManager {
     private static final String CACHE_HTTP_RESPONSE = "_webop_httpResponseCache";
 
     private static final String CACHE_PATTERN_OPERATION = "_webop_patternOperationCache";
-    private static final String CACHE_STEP = "_webop_stepCache";
     private static final String CACHE_CONVERTER = "_webop_converterCache";
 
     private WebopCacheManager() {}
@@ -44,9 +42,6 @@ public class WebopCacheManager {
                     .withCache(CACHE_PATTERN_OPERATION,
                             newCacheConfigurationBuilder(String.class, PatternOperation.class, heap(1000))
                                     .withExpiry(timeToIdleExpiration(of(30L, TimeUnit.MINUTES))))
-                    .withCache(CACHE_STEP,
-                            newCacheConfigurationBuilder(String.class, OperationStep.class, heap(1000))
-                                    .withExpiry(timeToIdleExpiration(of(30L, TimeUnit.MINUTES))))
                     .withCache(CACHE_CONVERTER,
                             newCacheConfigurationBuilder(String.class, Converter.class, heap(1000))
                                     .withExpiry(timeToIdleExpiration(of(30L, TimeUnit.MINUTES))))
@@ -62,13 +57,6 @@ public class WebopCacheManager {
      */
     public Cache<String, PatternOperation> getPatternOperationCache() {
         return cacheManager.getCache(CACHE_PATTERN_OPERATION, String.class, PatternOperation.class);
-    }
-
-    /**
-     * @return 保存Operation Step的缓存
-     */
-    public Cache<String, OperationStep> getStepCache() {
-        return cacheManager.getCache(CACHE_STEP, String.class, OperationStep.class);
     }
 
     /**
