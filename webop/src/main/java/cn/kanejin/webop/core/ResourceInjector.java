@@ -1,5 +1,8 @@
 package cn.kanejin.webop.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -10,6 +13,8 @@ import java.util.Map;
  * @author Kane Jin
  */
 public class ResourceInjector {
+    private static Logger log = LoggerFactory.getLogger(ResourceInjector.class);
+
     private static ResourceInjector injector;
 
     private ResourceProvider resourceProvider;
@@ -24,25 +29,40 @@ public class ResourceInjector {
     }
 
     public void inject(Object obj) {
-        Field[] fields = obj.getClass().getDeclaredFields();
-
-        if (fields == null || fields.length == 0)
-            return;
-
-        Arrays.stream(fields).forEach(field -> {
-
-            Resource ann = field.getDeclaredAnnotation(Resource.class);
-
-            if (ann != null) {
-                try {
-                    field.setAccessible(true);
-                    field.set(obj, lookupResource(ann, field.getType()));
-                } catch (Throwable t) {
-                    throw new OperationException("Inject resource " + field.getGenericType() + "error");
-                }
-            }
-        });
+        doInject(obj, obj.getClass());
     }
+
+    private void doInject(Object obj, Class<?> clazz) {
+
+        if (clazz.equals(Object.class)) {
+            return;
+        }
+
+        Field[] fields = clazz.getDeclaredFields();
+
+        if (fields != null) {
+            Arrays.stream(fields).forEach(field -> {
+
+                Resource ann = field.getDeclaredAnnotation(Resource.class);
+
+                if (ann != null) {
+                    try {
+                        field.setAccessible(true);
+                        field.set(obj, lookupResource(ann, field.getType()));
+
+                        log.trace("Inject " + field.getType().getSimpleName() + " in " + clazz);
+                    } catch (Throwable t) {
+                        throw new OperationException("Inject resource " + field.getGenericType() + "error");
+                    }
+                }
+            });
+        }
+
+        doInject(obj, clazz.getSuperclass());
+    }
+
+
+
 
     private Object lookupResource(Resource ann, Class<?> type) {
         if (resourceProvider == null) {
