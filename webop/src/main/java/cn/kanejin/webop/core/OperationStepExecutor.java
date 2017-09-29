@@ -46,7 +46,7 @@ public class OperationStepExecutor {
             OperationContext context, OperationDef operationDef, OperationStepDef stepDef)
             throws ServletException, IOException {
 
-        OperationStep step = OperationStepContainer.get(stepDef);
+        OperationStep step = OperationStepMapping.get(stepDef);
 
         Method stepMethod = getStepMethod(step);
 

@@ -3,10 +3,7 @@ package cn.kanejin.webop.loader;
 import cn.kanejin.commons.util.NumberUtils;
 import cn.kanejin.webop.core.*;
 import cn.kanejin.webop.core.action.*;
-import cn.kanejin.webop.core.def.CacheDef;
-import cn.kanejin.webop.core.def.CacheExpiryDef;
-import cn.kanejin.webop.core.def.OperationDef;
-import cn.kanejin.webop.core.def.OperationStepDef;
+import cn.kanejin.webop.core.def.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -138,7 +135,7 @@ public class ConfigXmlLoader {
 		if (isBlank(itClass))
 			throw new OperationException("Interceptor's attribute class is required");
 
-		if (InterceptorMapping.getInstance().get(itId) != null)
+		if (InterceptorMapping.getInstance().existsId(itId))
 			throw new OperationException("Interceptor [" + itId + "] is defined more than once");
 
 		log.info("Loading Interceptor [{}] for class [{}]", itId, itClass);
@@ -160,13 +157,8 @@ public class ConfigXmlLoader {
 			}
 		}
 		
-		try {
-			Interceptor it = (Interceptor) Class.forName(itClass).newInstance();
-			it.init(params);
-			InterceptorMapping.getInstance().put(itId, it);
-		} catch (Exception e) {
-			throw new RuntimeException("Initializing Interceptor Exception", e);
-		}
+		InterceptorMapping.getInstance().putDef(
+				itId, new InterceptorDef(itId, itClass, params));
 	}
 
 	private Document loadDocFromFile(String fileName) {

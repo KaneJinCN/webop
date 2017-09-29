@@ -11,7 +11,7 @@
 		</description>
 		<cache>
 			<expiry>
-				<eternal/>
+				<ttl>5</ttl>
 			</expiry>
 			<key-field>name</key-field>
 		</cache>
