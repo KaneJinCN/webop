@@ -4,26 +4,33 @@ package cn.kanejin.webop.core;
  * @author Kane Jin
  */
 public class WebopContext {
-    private static WebopContext webopContext;
+    private static WebopContext context;
 
     public static WebopContext get() {
-        if (webopContext == null)
-            webopContext = new WebopContext();
+        if (context == null)
+            context = new WebopContext();
 
-        return webopContext;
+        return context;
     }
 
-    private WebopContext() {}
+    private WebopContext() {
+
+        operationMapping = new OperationMapping();
+
+        operationStepMapping = new OperationStepMapping();
+        interceptorMapping = new InterceptorMapping();
+        converterMapping = new ConverterMapping();
+    }
 
     private WebopCacheManager cacheManager;
 
-    private OperationMapping operationMapping;
+    private final OperationMapping operationMapping;
 
-    private OperationStepMapping operationStepMapping;
+    private final OperationStepMapping operationStepMapping;
 
-    private InterceptorMapping interceptorMapping;
+    private final InterceptorMapping interceptorMapping;
 
-    private ConverterMapping converterMapping;
+    private final ConverterMapping converterMapping;
 
     public WebopCacheManager getCacheManager() {
         return cacheManager;
@@ -37,31 +44,15 @@ public class WebopContext {
         return operationMapping;
     }
 
-    public void setOperationMapping(OperationMapping operationMapping) {
-        this.operationMapping = operationMapping;
-    }
-
     public OperationStepMapping getOperationStepMapping() {
         return operationStepMapping;
-    }
-
-    public void setOperationStepMapping(OperationStepMapping operationStepMapping) {
-        this.operationStepMapping = operationStepMapping;
     }
 
     public InterceptorMapping getInterceptorMapping() {
         return interceptorMapping;
     }
 
-    public void setInterceptorMapping(InterceptorMapping interceptorMapping) {
-        this.interceptorMapping = interceptorMapping;
-    }
-
     public ConverterMapping getConverterMapping() {
         return converterMapping;
-    }
-
-    public void setConverterMapping(ConverterMapping converterMapping) {
-        this.converterMapping = converterMapping;
     }
 }

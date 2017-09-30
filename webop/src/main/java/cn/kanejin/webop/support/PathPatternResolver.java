@@ -23,14 +23,4 @@ public class PathPatternResolver {
 		
 		return files;
 	}
-	
-	public static void main(String[] args) throws IOException {
-		String[] r1 = resolve("/Users/Kane/Desktop", "**/*.java");
-		if (r1 != null) {
-			for (String r : r1)
-				System.out.println(r);
-			System.out.println("Matched: " + r1.length);
-		}
-		
-	}
 }

@@ -1,7 +1,7 @@
 package cn.kanejin.webop.context;
 
 import cn.kanejin.webop.cache.EhCacheManagerImpl;
-import cn.kanejin.webop.core.*;
+import cn.kanejin.webop.core.WebopContext;
 import cn.kanejin.webop.loader.ConfigXmlLoader;
 import cn.kanejin.webop.support.PathPatternResolver;
 import org.slf4j.Logger;
@@ -26,14 +26,8 @@ public class ConfigLoaderListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent event) {
 		log.info("ContextInitialized");
 
-		WebopContext webopContext = WebopContext.get();
-
 		log.info("Initializing Webop Context");
-		webopContext.setCacheManager(new EhCacheManagerImpl());
-		webopContext.setOperationMapping(new OperationMapping());
-		webopContext.setOperationStepMapping(new OperationStepMapping());
-		webopContext.setInterceptorMapping(new InterceptorMapping());
-		webopContext.setConverterMapping(new ConverterMapping());
+		WebopContext.get().setCacheManager(new EhCacheManagerImpl());
 
 		log.info("Loading webop configurations");
 		loadConfigFromLocations(event.getServletContext());

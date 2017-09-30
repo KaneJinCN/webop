@@ -3,6 +3,7 @@ package cn.kanejin.webop.support;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.regex.Pattern;
 
 /**
@@ -29,7 +30,7 @@ import java.util.regex.Pattern;
 public class AntPathMatcher {
     private static final Logger log = LoggerFactory.getLogger(AntPathMatcher.class);
 
-    private String regexPattern;
+    private final String regexPattern;
 
     public AntPathMatcher(String pattern) {
         this.regexPattern = toRegex(pattern);
@@ -65,14 +66,20 @@ public class AntPathMatcher {
      */
     private static String toRegex(String antPattern) {
 
-        String regexPattern = antPattern.replaceAll("\\\\", "/");
-        regexPattern = regexPattern.replaceAll("\\.", "\\\\.");
-        regexPattern = regexPattern.replaceAll("\\?", "[^/]");
+        String regexPattern = antPattern
+                .replace(File.separator, "/")
+                .replace("\\", "/")
+                .replace(".", "\\.");
+
+        regexPattern = regexPattern.replace("?", "([^/])");
 
         regexPattern = replaceSingleStar(regexPattern);
 
-        regexPattern = regexPattern.replaceAll("\\*\\*/", "([^/]+/)*");
-        regexPattern = regexPattern.replaceAll("/\\*\\*", "/.*");
+        if (regexPattern.startsWith("**/")) {
+            regexPattern = "(.*/)" + regexPattern.substring(3);
+        }
+        regexPattern = regexPattern.replace("**/", "(([^/]+/)*)");
+        regexPattern = regexPattern.replace("/**", "(/.*)");
 
         return regexPattern;
     }
@@ -92,7 +99,7 @@ public class AntPathMatcher {
         String prefix = (index == 0) ? "" : pattern.substring(0, index);
         String suffix = (index == pattern.length() - 1) ? "" : pattern.substring(index + 1);
 
-        return replaceSingleStar(prefix + "[^/]+" + suffix);
+        return replaceSingleStar(prefix + "([^/]+)" + suffix);
     }
 
     /**
@@ -124,57 +131,5 @@ public class AntPathMatcher {
         }
 
         return -1;
-    }
-
-    public static void main(String[] args) {
-        String pattern = "view/hello?.jsp";
-
-        System.out.println(AntPathMatcher.matches(pattern, "view/hello1.jsp"));
-        System.out.println(AntPathMatcher.matches(pattern, "view/hello$.jsp"));
-        System.out.println(AntPathMatcher.matches(pattern, "view/hello/world.jsp"));
-
-        pattern = "com/*.java";
-        System.out.println(AntPathMatcher.matches(pattern, "com/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/World.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/Hello.java"));
-
-        pattern = "com/**/Hello.java";
-        System.out.println(AntPathMatcher.matches(pattern, "com/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/company/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/a/b/c/d/e/f/g/h/i/j/k/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/a/b/c/d/e/f/g/h/i/j/k/World.java"));
-
-
-        pattern = "com/example/**/*.java";
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/World.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/company/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/company/World.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/a/b/c/d/e/f/g/h/i/j/k/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/a/b/c/d/e/f/g/h/i/j/k/World.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/a/b/c/d/e/f/g/h/i/j/k/Hello.class"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/a/b/c/d/e/f/g/h/i/j/k/World.class"));
-
-
-        pattern = "com/example/**";
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/World.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/company/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/company/World.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/company/Hello.class"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/company/World.class"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/a/b/c/d/e/f/g/h/i/j/k/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/a/b/c/d/e/f/g/h/i/j/k/Hello.class"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/a/b/c/d/e/f/g/h/i/j/k/Hello.class"));
-
-        pattern = "com/**/company/**/*.java";
-        System.out.println(AntPathMatcher.matches(pattern, "com/company/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/company/department/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/company/department/A/World.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/company/department/A/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/foo/company/department/A/World.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/foo/department/A/Hello.java"));
-        System.out.println(AntPathMatcher.matches(pattern, "com/example/foo/company/department/A/World.class"));
     }
 }
