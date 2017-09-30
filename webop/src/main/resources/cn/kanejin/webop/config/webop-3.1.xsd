@@ -271,9 +271,22 @@
         <xsd:attribute name="class" type="xsd:string" use="required"/>
     </xsd:complexType>
 
+    <xsd:complexType name="configEntryType">
+        <xsd:attribute name="key" type="xsd:string" use="required"/>
+        <xsd:attribute name="value" type="xsd:string" use="required"/>
+    </xsd:complexType>
+    
+    <xsd:complexType name="configType">
+        <xsd:sequence>
+            <xsd:element name="config-properties" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="config-entry" type="configEntryType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
     <xsd:element name="webop">
         <xsd:complexType>
             <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                <xsd:element name="config" type="configType"/>
                 <xsd:element name="interceptor" type="interceptorType"/>
                 <xsd:element name="operation" type="operationType"/>
             </xsd:choice>

@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * @author Kane Jin
  */
-public class ResourceInjector {
+class ResourceInjector {
     private static Logger log = LoggerFactory.getLogger(ResourceInjector.class);
 
     private static ResourceInjector injector;
@@ -52,7 +52,7 @@ public class ResourceInjector {
 
                         log.trace("Inject " + field.getType().getSimpleName() + " in " + clazz);
                     } catch (Throwable t) {
-                        throw new OperationException("Inject resource " + field.getGenericType() + "error");
+                        throw new OperationException("Inject resource " + field.getGenericType() + " error", t);
                     }
                 }
             });
@@ -60,9 +60,6 @@ public class ResourceInjector {
 
         doInject(obj, clazz.getSuperclass());
     }
-
-
-
 
     private Object lookupResource(Resource ann, Class<?> type) {
         if (resourceProvider == null) {
@@ -75,9 +72,9 @@ public class ResourceInjector {
     private ResourceProvider createResourceProvider() {
 
         try {
-            ResourceProvider provider = (ResourceProvider)
-                    Class.forName("cn.kanejin.webop.support.spring.BeanResourceProvider")
-                            .newInstance();
+            String providerClass = WebopContext.get().getConfig("webop.resource.provider");
+
+            ResourceProvider provider = (ResourceProvider) Class.forName(providerClass).newInstance();
 
             return provider;
         } catch(Throwable t) {

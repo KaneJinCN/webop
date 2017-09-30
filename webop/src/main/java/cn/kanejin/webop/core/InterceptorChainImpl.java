@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InterceptorChainImpl implements InterceptorChain {
+class InterceptorChainImpl implements InterceptorChain {
 	private List<Interceptor> interceptors;
 
 	private Integer cursor = 0;

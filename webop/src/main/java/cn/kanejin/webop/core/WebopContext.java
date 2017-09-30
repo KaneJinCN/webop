@@ -1,5 +1,9 @@
 package cn.kanejin.webop.core;
 
+import java.util.Properties;
+
+import static cn.kanejin.commons.util.StringUtils.isEmpty;
+
 /**
  * @author Kane Jin
  */
@@ -20,6 +24,8 @@ public class WebopContext {
         operationStepMapping = new OperationStepMapping();
         interceptorMapping = new InterceptorMapping();
         converterMapping = new ConverterMapping();
+
+        configs = WebopConfigHelper.getDefaultConfigs();
     }
 
     private WebopCacheManager cacheManager;
@@ -54,5 +60,23 @@ public class WebopContext {
 
     public ConverterMapping getConverterMapping() {
         return converterMapping;
+    }
+
+    private final Properties configs;
+
+    public void setConfig(String configName, String configValue) {
+        if (WebopConfigHelper.isSupportedConfig(configName))
+            configs.setProperty(configName, configValue);
+    }
+
+    public String getConfig(String configName) {
+
+        String config = configs.getProperty(configName);
+
+        if (isEmpty(config)) {
+            config = System.getProperty(configName);
+        }
+
+        return config;
     }
 }

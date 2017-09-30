@@ -1,2 +1,3 @@
 http\://www.kanejin.cn/schema/webop-3.0.xsd=cn/kanejin/webop/config/webop-3.0.xsd
-http\://www.kanejin.cn/schema/webop.xsd=cn/kanejin/webop/config/webop-3.0.xsd
+http\://www.kanejin.cn/schema/webop-3.1.xsd=cn/kanejin/webop/config/webop-3.1.xsd
+http\://www.kanejin.cn/schema/webop.xsd=cn/kanejin/webop/config/webop-3.1.xsd

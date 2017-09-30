@@ -4,6 +4,7 @@ import cn.kanejin.commons.util.NumberUtils;
 import cn.kanejin.webop.core.*;
 import cn.kanejin.webop.core.action.*;
 import cn.kanejin.webop.core.def.*;
+import cn.kanejin.webop.support.PathPatternResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -14,8 +15,12 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.*;
 
 import static cn.kanejin.commons.util.StringUtils.isBlank;
@@ -35,18 +40,46 @@ public class ConfigXmlLoader {
 			loader = new ConfigXmlLoader();
 		return loader;
 	}
-	
-	public void load(String[] files) {
 
-		if (files == null || files.length == 0)
+	public void load(ServletContext servletContext, String[] locations) {
+
+		if (locations == null || locations.length == 0)
 			return;
-		
-		for (String file : files) {
-			loadConfig(file);
+
+		for (String location : locations) {
+			String[] files = parseConfigLocations(servletContext, location);
+
+			if (files == null || files.length == 0)
+				continue;
+
+			for (String file : files) {
+				loadXml(servletContext, file);
+			}
 		}
 	}
-	
-	private void loadConfig(String fileName) {
+
+	/**
+	 * 解析通配符路径，把所有匹配的文件全部找出
+ 	 */
+	private String[] parseConfigLocations(ServletContext sc, String configLocation) {
+		String locationPath = configLocation.substring(0, configLocation.lastIndexOf("/"));
+		while (locationPath.contains("*") || locationPath.contains("?")) {
+			locationPath = locationPath.substring(0, locationPath.lastIndexOf("/"));
+		}
+
+		String pattern = configLocation.substring(locationPath.length() + 1);
+		String basePath = sc.getRealPath(locationPath);
+
+		try {
+			return PathPatternResolver.resolve(basePath, pattern);
+		} catch (IOException e) {
+			log.warn("Fail to parse location [" + basePath + "] : " + e.getMessage());
+			return null;
+		}
+	}
+
+
+	private void loadXml(ServletContext sc, String fileName) {
 		log.debug("Loading configurations from {}", fileName);
 
 		Document doc = loadDocFromFile(fileName);
@@ -55,13 +88,95 @@ public class ConfigXmlLoader {
 		
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node node = nodes.item(i);
-			
+
 			if (node.getNodeName().equals("operation")) {
 				loadOperations(node);
 			} else if (node.getNodeName().equals("interceptor")) {
 				loadInterceptors(node);
+			} else if (node.getNodeName().equals("config")) {
+				loadConfig(sc, node);
 			}
 		}
+	}
+
+	private void loadConfig(ServletContext sc, Node configNode) {
+		List<String> propertiesFiles = parseConfigProperties(configNode);
+
+		if (propertiesFiles != null && !propertiesFiles.isEmpty()) {
+
+			for (String file : propertiesFiles) {
+				File pFile = new File(sc.getRealPath(file));
+
+				if (!pFile.exists() || !pFile.isFile()) {
+					continue;
+				}
+
+				try {
+					Properties p = new Properties();
+					p.load(new FileInputStream(pFile));
+
+					for (Object key : p.keySet()) {
+						WebopContext.get().setConfig((String)key, p.getProperty((String)key));
+
+					}
+
+				} catch (IOException e) {
+					log.warn("Can't load config properties file " + file, e);
+				}
+			}
+		}
+
+		Map<String, String> entries = parseConfigEntries(configNode);
+
+		for (String key: entries.keySet()) {
+			WebopContext.get().setConfig(key, entries.get(key));
+		}
+	}
+
+	private Map<String, String> parseConfigEntries(Node configNode) {
+		Map<String, String> entries = new HashMap<>();
+
+		NodeList entryNodes = configNode.getChildNodes();
+
+		for (int i = 0; i < entryNodes.getLength(); i++) {
+			Node entryNode = entryNodes.item(i);
+
+			if (entryNode.getNodeName().equals("config-entry")) {
+				NamedNodeMap entryAttr = entryNode.getAttributes();
+
+				String key = entryAttr.getNamedItem("key").getNodeValue();
+				String value = entryAttr.getNamedItem("value").getNodeValue();
+
+				if (isNotBlank(key) && isNotBlank(value)) {
+					entries.put(key, value);
+				}
+			}
+		}
+
+		return entries;
+
+	}
+
+	private List<String> parseConfigProperties(Node configNode) {
+		List<String> propertiesFiles = new ArrayList<>();
+
+		NodeList propertiesNodes = configNode.getChildNodes();
+
+		for (int i = 0; i < propertiesNodes.getLength(); i++) {
+			Node propertiesNode = propertiesNodes.item(i);
+
+			if (propertiesNode.getNodeName().equals("config-properties")) {
+				String propertiesValue = propertiesNode.getTextContent();
+
+				if (isNotBlank(propertiesValue)) {
+					for (String v : propertiesValue.trim().split("(\\s*,\\s*)|(\\s+)")) {
+						propertiesFiles.add(v);
+					}
+				}
+			}
+		}
+
+		return propertiesFiles;
 	}
 	
 	private void loadOperations(Node opNode) {

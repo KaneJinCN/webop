@@ -1,4 +1,4 @@
-package cn.kanejin.webop.support.spring;
+package cn.kanejin.webop.spring;
 
 import cn.kanejin.webop.core.ResourceProvider;
 import org.springframework.context.ApplicationContext;

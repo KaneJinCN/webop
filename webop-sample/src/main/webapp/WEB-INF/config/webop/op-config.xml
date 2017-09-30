@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<webop xmlns="http://www.kanejin.cn/schema/webop"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.kanejin.cn/schema/webop http://www.kanejin.cn/schema/webop.xsd">
+
+	<config>
+		<config-properties>
+			/WEB-INF/webop.properties
+			/WEB-INF/webop2.properties
+		</config-properties>
+
+		<config-entry key="webop.resource.provider"
+				value="cn.kanejin.webop.spring.BeanResourceProvider"/>
+
+	</config>
+</webop>

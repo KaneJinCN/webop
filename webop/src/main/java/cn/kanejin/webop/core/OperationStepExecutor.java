@@ -29,7 +29,7 @@ import static cn.kanejin.commons.util.StringUtils.*;
 /**
  * @author Kane Jin
  */
-public class OperationStepExecutor {
+class OperationStepExecutor {
     private static final Logger log = LoggerFactory.getLogger(OperationStepExecutor.class);
 
     private OperationStepExecutor() {}
