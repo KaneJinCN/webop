@@ -1,6 +1,6 @@
 package cn.kanejin.webop.core;
 
-import cn.kanejin.webop.cache.WebopCacheManager;
+import cn.kanejin.webop.core.def.OperationDef;
 import cn.kanejin.webop.util.WebUtils;
 import org.ehcache.Cache;
 import org.slf4j.Logger;
@@ -20,21 +20,18 @@ import static cn.kanejin.commons.util.StringUtils.isBlank;
 public class OperationMapping {
 	private static final Logger log = LoggerFactory.getLogger(OperationMapping.class);
 
-	private static OperationMapping om;
+	private final Map<String, Operation> operations;
 
-	private Map<String, Operation> operations = new HashMap<>();
+	private final List<PathVarURI> pathVarURIs;
 
-	private List<PathVarURI> pathVarURIs = new ArrayList<>();
-
-	private OperationMapping() {}
-
-	public static OperationMapping getInstance() {
-		if (om == null)
-			om = new OperationMapping();
-		return om;
+	public OperationMapping() {
+		operations = new HashMap<>();
+		pathVarURIs = new ArrayList<>();
 	}
 
-	public void put(String uri, String[] methods, Operation op) {
+	public void put(String uri, String[] methods, OperationDef opDef) {
+		Operation op = new Operation(opDef);
+
 		if (methods == null || methods.length == 0) {
 			methods = new String[]{""};
 		}
@@ -47,28 +44,26 @@ public class OperationMapping {
 			pathVarURIs.add(new PathVarURI(uri));
 	}
 
-
 	public boolean exists(String uri, String method) {
 		return operations.containsKey(generateOperationId(uri, method));
 	}
 
-
-	public Operation getOperation(HttpServletRequest req) {
+	public Operation get(HttpServletRequest req) {
 		String uri = WebUtils.parseRequestURI(req);
 		String method = req.getMethod();
 
 		// Direct match
-		Operation op = findInOperations(uri, method);
+		Operation op = lookupInOperations(uri, method);
 
 		// 如果没找到，则在PatternOperation中匹配
 		if (op == null) {
-			op = findInPatternOperation(req);
+			op = lookupInPatternOperations(req);
 		}
 
 		return op;
 	}
 
-	private Operation findInOperations(String uri, String method) {
+	private Operation lookupInOperations(String uri, String method) {
 		Operation op = operations.get(uri);
 		if (op == null) {
 			op = operations.get(generateOperationId(uri, method));
@@ -77,12 +72,12 @@ public class OperationMapping {
 		return op;
 	}
 
-	private Operation findInPatternOperation(HttpServletRequest req) {
+	private Operation lookupInPatternOperations(HttpServletRequest req) {
 		String uri = WebUtils.parseRequestURI(req);
 		String method = req.getMethod();
 
 		Cache<String, PatternOperation> cache =
-				WebopCacheManager.getInstance().getPatternOperationCache();
+				WebopContext.get().getCacheManager().getPatternOperationCache();
 
 		Operation operation = null;
 
@@ -91,7 +86,7 @@ public class OperationMapping {
 		PatternOperation patternOperation = cache.get(uri);
 		// retrieve from cache
 		if (patternOperation != null) {
-			operation = findInOperations(patternOperation.getUriPattern(), method);
+			operation = lookupInOperations(patternOperation.getUriPattern(), method);
 			pathVars = patternOperation.getPathVariables();
 		}
 		// have no cache
@@ -106,7 +101,7 @@ public class OperationMapping {
 
 			PathVarURI firstPathVarURI = matchedPathVarURIs.get(0);
 
-			operation = findInOperations(firstPathVarURI.uri, method);
+			operation = lookupInOperations(firstPathVarURI.uri, method);
 
 			if (operation != null) {
 				pathVars = firstPathVarURI.extractPathVariables(uri);

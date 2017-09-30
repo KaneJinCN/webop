@@ -1,6 +1,7 @@
 package cn.kanejin.webop.context;
 
-import cn.kanejin.webop.cache.WebopCacheManager;
+import cn.kanejin.webop.cache.EhCacheManagerImpl;
+import cn.kanejin.webop.core.*;
 import cn.kanejin.webop.loader.ConfigXmlLoader;
 import cn.kanejin.webop.support.PathPatternResolver;
 import org.slf4j.Logger;
@@ -10,7 +11,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.IOException;
-
 
 /**
  * @version $Id: OperationLoaderListener.java 115 2016-03-15 06:34:36Z Kane $
@@ -26,10 +26,17 @@ public class ConfigLoaderListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent event) {
 		log.info("ContextInitialized");
 
-		loadConfigFromLocations(event.getServletContext());
+		WebopContext webopContext = WebopContext.get();
 
-		log.info("Initializing Cache Manager");
-		WebopCacheManager.getInstance().init();
+		log.info("Initializing Webop Context");
+		webopContext.setCacheManager(new EhCacheManagerImpl());
+		webopContext.setOperationMapping(new OperationMapping());
+		webopContext.setOperationStepMapping(new OperationStepMapping());
+		webopContext.setInterceptorMapping(new InterceptorMapping());
+		webopContext.setConverterMapping(new ConverterMapping());
+
+		log.info("Loading webop configurations");
+		loadConfigFromLocations(event.getServletContext());
 	}
 
 	/*
@@ -74,6 +81,6 @@ public class ConfigLoaderListener implements ServletContextListener {
 	public void contextDestroyed(ServletContextEvent event) {
 		log.info("ContextDestroyed");
 
-		WebopCacheManager.getInstance().close();
+		WebopContext.get().getCacheManager().close();
 	}
 }

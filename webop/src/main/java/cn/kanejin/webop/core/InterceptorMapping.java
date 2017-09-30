@@ -6,24 +6,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InterceptorMapping {
-	private static InterceptorMapping im;
-
 	private Map<String, InterceptorDef> interceptorDefMap;
 
 	private Map<String, Interceptor> interceptors;
 	
-	private InterceptorMapping() {
+	public InterceptorMapping() {
 		interceptorDefMap = new HashMap<>();
 		interceptors = new HashMap<>();
 	}
 	
-	public static InterceptorMapping getInstance() {
-		if (im == null)
-			im = new InterceptorMapping();
-		return im;
-	}
-
-	public void putDef(String id, InterceptorDef def) {
+	public void put(String id, InterceptorDef def) {
 		interceptorDefMap.put(id, def);
 	}
 	
@@ -52,7 +44,7 @@ public class InterceptorMapping {
 		}
 	}
 
-	public boolean existsId(String itId) {
+	public boolean exists(String itId) {
 		return interceptorDefMap.containsKey(itId);
 	}
 }

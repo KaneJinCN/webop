@@ -1,10 +1,9 @@
 package cn.kanejin.webop;
 
 import cn.kanejin.webop.cache.CachedResponse;
-import cn.kanejin.webop.cache.WebopCacheManager;
 import cn.kanejin.webop.core.Operation;
 import cn.kanejin.webop.core.OperationContext;
-import cn.kanejin.webop.core.OperationMapping;
+import cn.kanejin.webop.core.WebopContext;
 import cn.kanejin.webop.core.def.CacheDef;
 import org.ehcache.Cache;
 import org.slf4j.Logger;
@@ -45,7 +44,7 @@ public class DispatcherFilter extends IgnoreUriFilter {
 			return ;
 		}
 
-		Operation op = OperationMapping.getInstance().getOperation(req);
+		Operation op = WebopContext.get().getOperationMapping().get(req);
 
 		if(op == null) {
 			log.debug("No operation found: URI [{}] Method [{}]", req.getRequestURI(), req.getMethod());
@@ -57,7 +56,8 @@ public class DispatcherFilter extends IgnoreUriFilter {
 			if (op.needCached()) {
 				String key = generateCacheKey(op.getCacheDef(), req);
 
-				Cache<String, CachedResponse> cache = WebopCacheManager.getInstance().getHttpResponseCache();
+				Cache<String, CachedResponse> cache =
+						WebopContext.get().getCacheManager().getHttpResponseCache();
 
 				CachedResponse cachedResponse = cache.get(key);
 

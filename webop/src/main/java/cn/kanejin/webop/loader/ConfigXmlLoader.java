@@ -91,13 +91,15 @@ public class ConfigXmlLoader {
 		if (isBlank(opUri))
 			throw new OperationException("Operation's attribute uri is required");
 
+		OperationMapping operationMapping = WebopContext.get().getOperationMapping();
+
 		if (opMethods == null) {
-			if (OperationMapping.getInstance().exists(opUri, null))
+			if (operationMapping.exists(opUri, null))
 				throw new OperationException(
 						"Operation [" + opUri + "] is defined more than once");
 		} else {
 			for (String method : opMethods) {
-				if (OperationMapping.getInstance().exists(opUri, method))
+				if (operationMapping.exists(opUri, method))
 					throw new OperationException(
 							"Operation [" + opUri + "], Method [" + method + "] is defined more than once");
 			}
@@ -114,13 +116,10 @@ public class ConfigXmlLoader {
 			log.info("Loading Operation {}", opLog);
 		}
 		
-		Operation op = new Operation(
-				new OperationDef(
-						opUri, opName, parseCache(opNode), parseInterceptors(opNode), parseSteps(opNode)));
-
 		// TODO 这里可以添加operation的检验
 
-		OperationMapping.getInstance().put(op.getUri(), opMethods, op);
+		operationMapping.put(opUri, opMethods,
+				new OperationDef(opUri, opName, parseCache(opNode), parseInterceptors(opNode), parseSteps(opNode)));
 	}
 
 	private void loadInterceptors(Node itNode) {
@@ -135,7 +134,9 @@ public class ConfigXmlLoader {
 		if (isBlank(itClass))
 			throw new OperationException("Interceptor's attribute class is required");
 
-		if (InterceptorMapping.getInstance().existsId(itId))
+		InterceptorMapping interceptorMapping = WebopContext.get().getInterceptorMapping();
+
+		if (interceptorMapping.exists(itId))
 			throw new OperationException("Interceptor [" + itId + "] is defined more than once");
 
 		log.info("Loading Interceptor [{}] for class [{}]", itId, itClass);
@@ -156,8 +157,8 @@ public class ConfigXmlLoader {
 				}
 			}
 		}
-		
-		InterceptorMapping.getInstance().putDef(
+
+		interceptorMapping.put(
 				itId, new InterceptorDef(itId, itClass, params));
 	}
 

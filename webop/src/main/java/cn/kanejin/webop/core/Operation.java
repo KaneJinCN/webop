@@ -33,7 +33,7 @@ public class Operation implements Serializable {
 		if (operationDef.hasInterceptors()) {
 			for (String interceptorRef : operationDef.getInterceptorRefs()) {
 				interceptorChain.addInterceptor(
-						InterceptorMapping.getInstance().get(interceptorRef));
+						WebopContext.get().getInterceptorMapping().get(interceptorRef));
 			}
 		}
 
@@ -55,7 +55,8 @@ public class Operation implements Serializable {
 		executeStep(context, operationDef.getOpSteps().get(0), 0);
 	}
 
-	private void executeStep(OperationContext context, OperationStepDef stepDef, int stepCount) throws ServletException, IOException {
+	private void executeStep(OperationContext context, OperationStepDef stepDef, int stepCount)
+			throws ServletException, IOException {
 
 		if (stepCount > 100) {
 			throw new OperationException("Operation[" + getUri() + "] has too many steps");
@@ -64,12 +65,13 @@ public class Operation implements Serializable {
 		OperationStepDef nextStepDef =
 				OperationStepExecutor.getInstance().execute(context, operationDef, stepDef);
 
-		// 如果有下一个Step，递归继续执行Step，否则退出
-		if (nextStepDef != null) {
-			executeStep(context, nextStepDef, ++stepCount);
-		} else {
+		// 如果没有下一个Step，退出递归
+		if (nextStepDef == null) {
 			return ;
 		}
+
+		// 如果有下一个Step，递归继续执行Step
+		executeStep(context, nextStepDef, ++stepCount);
 	}
 
 	public String getUri() {

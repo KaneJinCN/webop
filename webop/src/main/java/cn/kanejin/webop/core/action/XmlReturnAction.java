@@ -1,8 +1,8 @@
 package cn.kanejin.webop.core.action;
 
 import cn.kanejin.webop.core.Converter;
-import cn.kanejin.webop.core.ConverterFactory;
 import cn.kanejin.webop.core.OperationContext;
+import cn.kanejin.webop.core.WebopContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +43,9 @@ public class XmlReturnAction extends EndReturnAction {
 
 		PrintWriter out = res.getWriter();
 		
-		Converter<Object> conv = ConverterFactory.getInstance().create(converter);
+		Converter<Object> c = WebopContext.get().getConverterMapping().get(converter);
 		
-		String xml = conv.convert(xmlObj);
+		String xml = c.convert(xmlObj);
 
 		log.debug("XML RESULT: {}", xml);
 		out.print(xml);

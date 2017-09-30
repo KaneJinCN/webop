@@ -1,8 +1,9 @@
 package cn.kanejin.webop.core.action;
 
 import cn.kanejin.webop.core.Converter;
-import cn.kanejin.webop.core.ConverterFactory;
+import cn.kanejin.webop.core.ConverterMapping;
 import cn.kanejin.webop.core.OperationContext;
+import cn.kanejin.webop.core.WebopContext;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.servlet.ServletException;
@@ -31,8 +32,8 @@ public abstract class JsonConvertAction extends EndReturnAction {
             throw new ServletException("Attribute data is required");
 
         if (isNotEmpty(converter)) {
-            Converter conv = ConverterFactory.getInstance().create(converter);
-            return conv.convert(jsonObj);
+            Converter c = WebopContext.get().getConverterMapping().get(converter);
+            return c.convert(jsonObj);
         } else {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.writeValueAsString(jsonObj);

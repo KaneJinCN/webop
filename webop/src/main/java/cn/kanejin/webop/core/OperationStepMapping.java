@@ -9,24 +9,13 @@ import java.util.Map;
  * @author Kane Jin
  */
 public class OperationStepMapping {
-    private static OperationStepMapping container;
+    private final Map<String, OperationStep> steps;
 
-    private Map<String, OperationStep> steps = new HashMap<>();
-
-    private OperationStepMapping() {
+    public OperationStepMapping() {
+        steps = new HashMap<>();
     }
 
-    public static OperationStepMapping getInstance() {
-        if (container == null)
-            container = new OperationStepMapping();
-        return container;
-    }
-
-    public static OperationStep get(OperationStepDef stepDef) {
-        return getInstance().getStep(stepDef);
-    }
-
-    public OperationStep getStep(OperationStepDef stepDef) {
+    public OperationStep get(OperationStepDef stepDef) {
         String key = generateKey(stepDef);
 
         OperationStep step = steps.get(key);
