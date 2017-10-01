@@ -1,4 +1,4 @@
-package cn.kanejin.webop.cache;
+package cn.kanejin.webop.core.cache;
 
 import cn.kanejin.webop.core.def.CacheExpiryDef;
 import org.ehcache.ValueSupplier;

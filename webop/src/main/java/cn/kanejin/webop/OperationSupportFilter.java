@@ -1,6 +1,6 @@
 package cn.kanejin.webop;
 
-import cn.kanejin.webop.cache.CachedResponse;
+import cn.kanejin.webop.core.cache.CachedResponse;
 import cn.kanejin.webop.core.Operation;
 import cn.kanejin.webop.core.WebopContext;
 import cn.kanejin.webop.core.def.CacheDef;

@@ -1,4 +1,4 @@
-package cn.kanejin.webop.cache;
+package cn.kanejin.webop.core.cache;
 
 import cn.kanejin.webop.core.def.CacheExpiryDef;
 
@@ -23,7 +23,6 @@ public class CachedResponse implements Serializable {
         this.statusCode = statusCode;
         this.contentType = contentType;
         this.content = content;
-
     }
 
     public CacheExpiryDef getExpiryDef() {

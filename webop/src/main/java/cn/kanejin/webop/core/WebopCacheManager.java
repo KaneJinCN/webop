@@ -1,17 +1,7 @@
 package cn.kanejin.webop.core;
 
-import cn.kanejin.webop.cache.CachedResponse;
-import cn.kanejin.webop.cache.CachedResponseExpiry;
+import cn.kanejin.webop.core.cache.CachedResponse;
 import org.ehcache.Cache;
-import org.ehcache.CacheManager;
-
-import java.util.concurrent.TimeUnit;
-
-import static org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder;
-import static org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder;
-import static org.ehcache.config.builders.ResourcePoolsBuilder.heap;
-import static org.ehcache.expiry.Duration.of;
-import static org.ehcache.expiry.Expirations.timeToIdleExpiration;
 
 /**
  * @author Kane Jin

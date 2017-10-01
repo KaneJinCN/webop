@@ -1,5 +1,7 @@
 package cn.kanejin.webop.core;
 
+import cn.kanejin.webop.core.cache.EhCacheManagerImpl;
+
 import java.util.Properties;
 
 import static cn.kanejin.commons.util.StringUtils.isEmpty;
@@ -17,33 +19,31 @@ public class WebopContext {
         return context;
     }
 
-    private WebopContext() {
+    public static void init() {
+        WebopContext wc = get();
 
-        operationMapping = new OperationMapping();
+        wc.cacheManager = new EhCacheManagerImpl();
 
-        operationStepMapping = new OperationStepMapping();
-        interceptorMapping = new InterceptorMapping();
-        converterMapping = new ConverterMapping();
+        wc.operationMapping = new OperationMapping();
+        wc.operationStepMapping = new OperationStepMapping();
+        wc.interceptorMapping = new InterceptorMapping();
+        wc.converterMapping = new ConverterMapping();
 
-        configs = WebopConfigHelper.getDefaultConfigs();
+        wc.configs = WebopConfigHelper.getDefaultConfigs();
     }
 
     private WebopCacheManager cacheManager;
 
-    private final OperationMapping operationMapping;
+    private OperationMapping operationMapping;
 
-    private final OperationStepMapping operationStepMapping;
+    private OperationStepMapping operationStepMapping;
 
-    private final InterceptorMapping interceptorMapping;
+    private InterceptorMapping interceptorMapping;
 
-    private final ConverterMapping converterMapping;
+    private ConverterMapping converterMapping;
 
     public WebopCacheManager getCacheManager() {
         return cacheManager;
-    }
-
-    public void setCacheManager(WebopCacheManager cacheManager) {
-        this.cacheManager = cacheManager;
     }
 
     public OperationMapping getOperationMapping() {
@@ -62,7 +62,7 @@ public class WebopContext {
         return converterMapping;
     }
 
-    private final Properties configs;
+    private Properties configs;
 
     public void setConfig(String configName, String configValue) {
         if (WebopConfigHelper.isSupportedConfig(configName))

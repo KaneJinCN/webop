@@ -30,14 +30,20 @@ import java.util.regex.Pattern;
 public class AntPathMatcher {
     private static final Logger log = LoggerFactory.getLogger(AntPathMatcher.class);
 
+    private final String pattern;
     private final String regexPattern;
 
     public AntPathMatcher(String pattern) {
+        this.pattern = pattern;
         this.regexPattern = toRegex(pattern);
     }
 
     public boolean matches(String path) {
         return Pattern.matches(regexPattern, path);
+    }
+
+    public String getPattern() {
+        return this.pattern;
     }
 
     public static boolean matches(String pattern, String path) {
@@ -54,7 +60,7 @@ public class AntPathMatcher {
      * @param antPattern
      * @return
      */
-    private static boolean isPattern(String antPattern) {
+    public static boolean isPattern(String antPattern) {
         return antPattern.contains("?") || antPattern.contains("*");
     }
 
