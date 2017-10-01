@@ -10,9 +10,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @version $Id: Operation.java 167 2017-09-13 09:26:47Z Kane $
@@ -23,21 +21,30 @@ public class Operation implements Serializable {
 
 	private final OperationDef operationDef;
 
+	private List<Interceptor> interceptors;
+
 	public Operation(OperationDef operationDef) {
 		this.operationDef = operationDef;
 	}
 
 	public void operate(OperationContext context) throws ServletException, IOException {
-		InterceptorChainImpl interceptorChain = new InterceptorChainImpl(this);
-
 		if (operationDef.hasInterceptors()) {
-			for (String interceptorRef : operationDef.getInterceptorRefs()) {
-				interceptorChain.addInterceptor(
-						WebopContext.get().getInterceptorMapping().get(interceptorRef));
+			// 如果有拦截器，先组装拦截器列表，再创建拦截链并开始执行
+			if (interceptors == null) {
+				interceptors = new ArrayList<>();
+				for (String id : operationDef.getInterceptorRefs()) {
+					interceptors.add(WebopContext.get().getInterceptorMapping().get(id));
+				}
 			}
-		}
 
-		interceptorChain.intercept(context);
+			InterceptorChain interceptorChain =
+					new InterceptorChainImpl(interceptors, cxt -> execute(cxt));
+
+			interceptorChain.intercept(context);
+		} else {
+			// 如果没有拦截器，则直接执行Operation
+			this.execute(context);
+		}
 	}
 
 	public boolean needCached() {

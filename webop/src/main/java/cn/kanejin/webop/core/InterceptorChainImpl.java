@@ -10,14 +10,14 @@ class InterceptorChainImpl implements InterceptorChain {
 
 	private Integer cursor = 0;
 
-	private Operation operation;
+	private CompleteHandler completeHandler;
 
-	public InterceptorChainImpl(Operation operation) {
-		this.operation = operation;
+	public InterceptorChainImpl(CompleteHandler completeHandler) {
+		this(null, completeHandler);
 	}
 
-	public InterceptorChainImpl(Operation operation, List<Interceptor> interceptors) {
-		this.operation = operation;
+	public InterceptorChainImpl(List<Interceptor> interceptors, CompleteHandler completeHandler) {
+		this.completeHandler = completeHandler;
 		this.interceptors = interceptors;
 	}
 
@@ -27,7 +27,7 @@ class InterceptorChainImpl implements InterceptorChain {
 		
 		interceptors.add(interceptor);
 	}
-	
+
 	@Override
 	public void intercept(OperationContext context) throws ServletException, IOException {
 		if (interceptors != null) {
@@ -38,6 +38,8 @@ class InterceptorChainImpl implements InterceptorChain {
 			}
 		}
 
-		operation.execute(context);
+		if (completeHandler != null) {
+			completeHandler.complete(context);
+		}
 	}
 }
