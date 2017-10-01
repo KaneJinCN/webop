@@ -3,15 +3,9 @@ package cn.kanejin.webop.core;
 import java.io.Serializable;
 
 /**
- * @version $Id: OperationStep.java 169 2017-09-17 12:26:25Z Kane $
+ * 所有的Step类都应该实现OperationStep接口。
+ * Step类的具体的业务方法请使用@StepMethod进行注解。
+ *
  * @author Kane Jin
  */
-public interface OperationStep extends Serializable {
-//	/**
-//	 * 执行Step，在这里实现Step的业务逻辑
-//	 *
-//	 * @param context Operation上下文
-//	 * @return 执行正常时返回 &gt;= 0的整数，异常时返回&lt;0的整数(通常是-1)
-//	 */
-//	int execute(OperationContext context);
-}
+public interface OperationStep extends Serializable { }

@@ -27,6 +27,19 @@ import java.util.Date;
 import static cn.kanejin.commons.util.StringUtils.*;
 
 /**
+ * OperationStepExecutor是专门的Step执行器。
+ *
+ * <p>
+ * 具体执行步骤：
+ *  <ol>
+ *      <li>先根据Step的定义取出相应的Step对象</li>
+ *      <li>在Step对象中寻找有注解@StepMethod的方法，如果有多个，则只找第一个，如果没有则报错</li>
+ *      <li>解析StepMethod方法的参数，根据参数的定义，查找参数值，并把参数值Cast成目标类型</li>
+ *      <li>把解析好的参数传给StepMethod并执行</li>
+ *      <li>根据StepMethod的返回值(int型)找到相应的ReturnAction</li>
+ *      <li>执行ReturnAction后，返回ReturnAction的结果</li>
+ *  </ol>
+ *
  * @author Kane Jin
  */
 class OperationStepExecutor {

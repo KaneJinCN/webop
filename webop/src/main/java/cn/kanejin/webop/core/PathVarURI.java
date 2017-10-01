@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 class PathVarURI {
     private static final Logger log = LoggerFactory.getLogger(PathVarURI.class);
 
-
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("(\\{[^/]+})");
 
     public final String uri;

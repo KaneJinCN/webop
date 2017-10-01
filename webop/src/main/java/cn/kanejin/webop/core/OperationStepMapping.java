@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 用来存放OperationStep。存放时键值为Step的Class + init-params
+ *
  * @author Kane Jin
  */
 public class OperationStepMapping {
