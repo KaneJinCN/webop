@@ -10,7 +10,7 @@ webop是一个java webapp的MVC框架
     <dependency>
         <groupId>cn.kanejin.webop</groupId>
         <artifactId>webop</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.1</version>
     </dependency>
     ```
 
