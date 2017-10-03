@@ -41,7 +41,7 @@ public class MultipartFilter implements Filter {
 		}
 	    this.maxSize = getMaxSize(filterConfig.getInitParameter("uploadMaxFileSize"));
 
-	    log.info("Configure uploadRepositryPath to {}", this.repositoryPath);
+	    log.info("Configure uploadRepositoryPath to {}", this.repositoryPath);
 	    log.info("Configure uploadMaxFileSize to  {}", this.maxSize);
 	}
 

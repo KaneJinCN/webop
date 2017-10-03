@@ -1,19 +1,14 @@
 package cn.kanejin.webop.core.action;
 
+import cn.kanejin.commons.util.NumberUtils;
 import cn.kanejin.webop.core.OperationContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
 
 public class ResponseReturnAction extends EndReturnAction {
 	public static ResponseReturnAction getInstance(String statusString) {
-		try {
-			return new ResponseReturnAction(Integer.parseInt(statusString));
-		} catch (Exception e) {
-		}
-		return new ResponseReturnAction(500);
+		return new ResponseReturnAction(NumberUtils.toInt(statusString, 500));
 	}
 
 	private final int status;

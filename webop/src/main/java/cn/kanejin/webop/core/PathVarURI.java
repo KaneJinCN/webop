@@ -40,11 +40,7 @@ class PathVarURI {
 
         if (uriMatcher.find()) {
             for (String name : names) {
-                try {
-                    pathVars.put(name, uriMatcher.group(name));
-                } catch (Exception e) {
-                    log.warn("No Path Variable [" + name + "] match found", e);
-                }
+                pathVars.put(name, uriMatcher.group(name));
             }
         }
 

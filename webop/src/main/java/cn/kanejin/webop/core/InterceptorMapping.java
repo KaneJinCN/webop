@@ -1,6 +1,7 @@
 package cn.kanejin.webop.core;
 
 import cn.kanejin.webop.core.def.InterceptorDef;
+import cn.kanejin.webop.core.exception.IllegalConfigException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,24 +24,26 @@ public class InterceptorMapping {
 		Interceptor it = interceptors.get(id);
 
 		if (it == null) {
-			it = instantInterceptor(interceptorDefMap.get(id));
+			it = instantiateInterceptor(interceptorDefMap.get(id));
 			interceptors.put(id, it);
 		}
 
 		return it;
 	}
 
-	private Interceptor instantInterceptor(InterceptorDef itDef) {
+	private Interceptor instantiateInterceptor(InterceptorDef itDef) {
 
 		try {
 			Interceptor it = (Interceptor) Class.forName(itDef.getClazz()).newInstance();
-			it.init(itDef.getInitParams());
-
 			ResourceInjector.getInstance().inject(it);
 
+			it.init(itDef.getInitParams());
+
 			return it;
-		} catch (Throwable t) {
-			throw new OperationException("Instant interceptor [" + itDef.getId() + "] error", t);
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+			throw new IllegalConfigException(
+					"Can't instantiate interceptor[" + itDef.getId() + "]." +
+							" Check for the interceptor configuration", e);
 		}
 	}
 

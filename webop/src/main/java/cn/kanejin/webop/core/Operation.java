@@ -1,9 +1,33 @@
+/*
+ * Copyright (c) 2017 Kane Jin
+ *
+ * Permission is hereby granted, free  of charge, to any person obtaining
+ * a  copy  of this  software  and  associated  documentation files  (the
+ * "Software"), to  deal in  the Software without  restriction, including
+ * without limitation  the rights to  use, copy, modify,  merge, publish,
+ * distribute,  sublicense, and/or sell  copies of  the Software,  and to
+ * permit persons to whom the Software  is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The  above  copyright  notice  and  this permission  notice  shall  be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
+ * EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
+ * MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 package cn.kanejin.webop.core;
 
 import cn.kanejin.webop.core.def.CacheDef;
 import cn.kanejin.webop.core.def.OperationDef;
 import cn.kanejin.webop.core.def.OperationStepDef;
-import org.apache.commons.fileupload.FileItem;
+import cn.kanejin.webop.core.exception.OperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +81,7 @@ public class Operation implements Serializable {
 
 	public void execute(OperationContext context) throws ServletException, IOException {
 		log.info("Operation[{}] is being executed...", getUri());
-		logOperationParameters(context);
+		LogHelper.logOperationParameters(log, this, context);
 
 		executeStep(context, operationDef.getOpSteps().get(0), 0);
 	}
@@ -66,7 +90,8 @@ public class Operation implements Serializable {
 			throws ServletException, IOException {
 
 		if (stepCount > 100) {
-			throw new OperationException("Operation[" + getUri() + "] has too many steps");
+			throw new OperationException(getUri(), stepDef.getId(),
+					"There are too many steps, may be a infinite loop");
 		}
 
 		OperationStepDef nextStepDef =
@@ -111,52 +136,4 @@ public class Operation implements Serializable {
 		Operation op = (Operation) obj;
 		return this.getUri().equals(op.getUri());
 	}
-
-	private void logOperationParameters(OperationContext context) {
-		if (log.isDebugEnabled()) {
-
-			Enumeration<String> paramEnum = context.getRequest().getParameterNames();
-
-			if (paramEnum.hasMoreElements())
-				log.debug("%%%% Parameters in Context of Operation[{}]:", getUri());
-
-			while (paramEnum.hasMoreElements()) {
-				String name = paramEnum.nextElement();
-				if (name.endsWith("[]")) {
-					String[] value = context.getRequest().getParameterValues(name);
-					log.debug("%%%% [{}] = {}", name.substring(0, name.length() - 2), Arrays.toString(value));
-				} else {
-					String value = context.getRequest().getParameter(name);
-					log.debug("%%%% [{}] = [{}]", name, value);
-				}
-			}
-
-			Map<String, String> pathVars =
-					(Map<String, String>) context.getRequest().getAttribute(Constants.PATH_VAR);
-
-			if (pathVars != null) {
-
-				log.debug("%%%% Path Variables in Context of Operation[{}]:", getUri());
-
-				for (String key : pathVars.keySet())
-					log.debug("%%%% [{}] = [{}]", key, pathVars.get(key));
-			}
-
-
-			if (context.isMultipart()) {
-				Enumeration<String> fileEnum = context.getFileItemKeys();
-
-				if (fileEnum.hasMoreElements())
-					log.debug("%%%% FileItems in Context of Operation[{}]:", getUri());
-
-				while (fileEnum.hasMoreElements()) {
-					String key = fileEnum.nextElement();
-					FileItem item = context.getFileItem(key);
-					log.debug("%%%% [{}] = [{}], size=[{}], contentType=[{}]",
-							new Object[]{key, item.getName(), item.getSize(), item.getContentType()});
-				}
-			}
-		}
-	}
-
 }

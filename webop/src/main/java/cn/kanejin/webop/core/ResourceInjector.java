@@ -1,13 +1,13 @@
 package cn.kanejin.webop.core;
 
+import cn.kanejin.commons.util.StringUtils;
+import cn.kanejin.webop.core.exception.IllegalConfigException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Kane Jin
@@ -51,13 +51,14 @@ class ResourceInjector {
                         field.set(obj, lookupResource(ann, field.getType()));
 
                         log.trace("Inject " + field.getType().getSimpleName() + " in " + clazz);
-                    } catch (Throwable t) {
-                        throw new OperationException("Inject resource " + field.getGenericType() + " error", t);
+                    } catch (IllegalAccessException e) {
+                        log.warn("Can't inject resource '" + field.getGenericType() + "'.", e);
                     }
                 }
             });
         }
 
+        // 递归注入所有父类里的Resource
         doInject(obj, clazz.getSuperclass());
     }
 
@@ -71,14 +72,21 @@ class ResourceInjector {
 
     private ResourceProvider createResourceProvider() {
 
-        try {
-            String providerClass = WebopContext.get().getConfig("webop.resource.provider");
+        String providerClass = WebopContext.get().getConfig("webop.resource.provider");
 
+        if (StringUtils.isBlank(providerClass)) {
+            throw new IllegalConfigException("Webop configuration 'webop.resource.provider' is required");
+        }
+
+        try {
             ResourceProvider provider = (ResourceProvider) Class.forName(providerClass).newInstance();
+            provider.init(WebopContext.get().getServletContext());
 
             return provider;
-        } catch(Throwable t) {
-            throw new OperationException("Can't get a resource provider", t);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            throw new IllegalConfigException(
+                    "Can't instantiate resource provider '" + providerClass + "' correctly." +
+                            " Check for webop configuration 'webop.resource.provider'.", e);
         }
     }
 }

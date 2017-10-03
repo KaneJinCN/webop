@@ -2,6 +2,7 @@ package cn.kanejin.webop.core;
 
 import cn.kanejin.webop.core.cache.EhCacheManagerImpl;
 
+import javax.servlet.ServletContext;
 import java.util.Properties;
 
 import static cn.kanejin.commons.util.StringUtils.isEmpty;
@@ -19,8 +20,10 @@ public class WebopContext {
         return context;
     }
 
-    public static void init() {
+    public static void init(ServletContext servletContext) {
         WebopContext wc = get();
+
+        wc.servletContext = servletContext;
 
         wc.cacheManager = new EhCacheManagerImpl();
 
@@ -32,6 +35,8 @@ public class WebopContext {
         wc.configs = WebopConfigHelper.getDefaultConfigs();
     }
 
+    private ServletContext servletContext;
+
     private WebopCacheManager cacheManager;
 
     private OperationMapping operationMapping;
@@ -41,6 +46,10 @@ public class WebopContext {
     private InterceptorMapping interceptorMapping;
 
     private ConverterMapping converterMapping;
+
+    public ServletContext getServletContext() {
+        return servletContext;
+    }
 
     public WebopCacheManager getCacheManager() {
         return cacheManager;

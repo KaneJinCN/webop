@@ -5,8 +5,6 @@ package cn.kanejin.webop.core;
  * @author Kane Jin
  */
 public interface Constants {
-	String RETURN_PAGE	= "_webop_return_page_";
-	String ERROR_MSG	= "_webop_error_msg_";
 	String TOKEN		= "_webop_token_";
 	String BACK_URL		= "_webop_back_url_";
 	String PATH_VAR		= "_webop_path_var_";

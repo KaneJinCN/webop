@@ -1,9 +1,12 @@
 package cn.kanejin.webop.loader;
 
 import cn.kanejin.commons.util.NumberUtils;
-import cn.kanejin.webop.core.*;
+import cn.kanejin.webop.core.InterceptorMapping;
+import cn.kanejin.webop.core.OperationMapping;
+import cn.kanejin.webop.core.WebopContext;
 import cn.kanejin.webop.core.action.*;
 import cn.kanejin.webop.core.def.*;
+import cn.kanejin.webop.core.exception.IllegalConfigException;
 import cn.kanejin.webop.support.PathPatternResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +21,12 @@ import org.xml.sax.SAXParseException;
 import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
-import static cn.kanejin.commons.util.StringUtils.isBlank;
 import static cn.kanejin.commons.util.StringUtils.isNotBlank;
 
 /**
@@ -53,7 +56,11 @@ public class ConfigXmlLoader {
 				continue;
 
 			for (String file : files) {
-				loadXml(servletContext, file);
+				try {
+					loadXml(servletContext, file);
+				} catch (IOException | SAXException | ParserConfigurationException e) {
+					log.warn("Can't load xml file: " + file, e);
+				}
 			}
 		}
 	}
@@ -79,7 +86,7 @@ public class ConfigXmlLoader {
 	}
 
 
-	private void loadXml(ServletContext sc, String fileName) {
+	private void loadXml(ServletContext sc, String fileName) throws IOException, SAXException, ParserConfigurationException {
 		log.debug("Loading configurations from {}", fileName);
 
 		Document doc = loadDocFromFile(fileName);
@@ -196,27 +203,19 @@ public class ConfigXmlLoader {
 			}
 		}
 
-		// FIXME 过渡，如果没有配置uri，以前的id仍然有效，迁移完成后删除这段
-		if (isBlank(opUri)) {
-			String opId = opAttr.getNamedItem("id").getNodeValue();
-			
-			opUri = "/" + opId.replaceAll("\\.", "/");
-		}
-		
-		if (isBlank(opUri))
-			throw new OperationException("Operation's attribute uri is required");
-
 		OperationMapping operationMapping = WebopContext.get().getOperationMapping();
 
 		if (opMethods == null) {
-			if (operationMapping.exists(opUri, null))
-				throw new OperationException(
+			if (operationMapping.exists(opUri, null)) {
+				throw new IllegalConfigException(
 						"Operation [" + opUri + "] is defined more than once");
+			}
 		} else {
 			for (String method : opMethods) {
-				if (operationMapping.exists(opUri, method))
-					throw new OperationException(
-							"Operation [" + opUri + "], Method [" + method + "] is defined more than once");
+				if (operationMapping.exists(opUri, method)) {
+					throw new IllegalConfigException(
+							"Operation [" + opUri + "] Method [" + method + "] is defined more than once");
+				}
 			}
 		}
 
@@ -243,16 +242,11 @@ public class ConfigXmlLoader {
 		String itId = itAttr.getNamedItem("id").getNodeValue();
 		String itClass = itAttr.getNamedItem("class").getNodeValue();
 		
-		if (isBlank(itId))
-			throw new OperationException("Interceptor's attribute id is required");
-		
-		if (isBlank(itClass))
-			throw new OperationException("Interceptor's attribute class is required");
-
 		InterceptorMapping interceptorMapping = WebopContext.get().getInterceptorMapping();
 
 		if (interceptorMapping.exists(itId))
-			throw new OperationException("Interceptor [" + itId + "] is defined more than once");
+			throw new IllegalConfigException(
+					"Interceptor [" + itId + "] is defined more than once");
 
 		log.info("Loading Interceptor [{}] for class [{}]", itId, itClass);
 		
@@ -277,9 +271,8 @@ public class ConfigXmlLoader {
 				itId, new InterceptorDef(itId, itClass, params));
 	}
 
-	private Document loadDocFromFile(String fileName) {
-		Document doc = null;
-		
+	private Document loadDocFromFile(String fileName) throws ParserConfigurationException, IOException, SAXException {
+
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setValidating(true);
 		factory.setIgnoringComments(true);
@@ -291,35 +284,31 @@ public class ConfigXmlLoader {
 	    if (log.isDebugEnabled()) {
 	      log.debug("Using JAXP provider [{}]", factory.getClass().getName());
 	    }
-	    
-		try {
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			
-			builder.setEntityResolver(ConfigEntityResolver.getInstance());
-			
-			builder.setErrorHandler(new ErrorHandler() {
-				
-				@Override
-				public void warning(SAXParseException exception) throws SAXException {
-					log.warn(exception.getMessage());
-				}
-				
-				@Override
-				public void fatalError(SAXParseException exception) throws SAXException {
-					throw new OperationException("A fatal error occurs when parsing operation config file", exception);
-				}
-				
-				@Override
-				public void error(SAXParseException exception) throws SAXException {
-					throw new OperationException("An error occurs when parsing operation config file", exception);
-				}
-			});
-			doc = builder.parse(fileName);
-			doc.normalize();
-		} catch (Exception e) {
-			throw new OperationException("Unable to load xml file [" + fileName + "]", e);
-		}
-	    
+
+		DocumentBuilder builder = factory.newDocumentBuilder();
+
+		builder.setEntityResolver(ConfigEntityResolver.getInstance());
+
+		builder.setErrorHandler(new ErrorHandler() {
+
+			@Override
+			public void warning(SAXParseException exception) throws SAXException {
+				log.warn(exception.getMessage());
+			}
+
+			@Override
+			public void fatalError(SAXParseException exception) throws SAXException {
+				throw exception;
+			}
+
+			@Override
+			public void error(SAXParseException exception) throws SAXException {
+				throw exception;
+			}
+		});
+		Document doc = builder.parse(fileName);
+		doc.normalize();
+
 		return doc;
 	}
 
@@ -417,13 +406,8 @@ public class ConfigXmlLoader {
 		NamedNodeMap stepAttr = stepNode.getAttributes();
 
 		String stepId = stepAttr.getNamedItem("id").getNodeValue();
-		if (isBlank(stepId))
-			throw new OperationException("Step's id is required");
-
 		String stepClass = stepAttr.getNamedItem("class").getNodeValue();
-		if (isBlank(stepClass))
-			throw new OperationException("Step[" + stepId + "]'s class is required");
-		
+
 		OperationStepDef opStepDef = new OperationStepDef(stepId, stepClass);
 		
 		NodeList stepChildNodes = stepNode.getChildNodes();
@@ -489,7 +473,8 @@ public class ConfigXmlLoader {
 			} else if (actionType.equals("operation")) {
 				String uri = actionAttr.getNamedItem("uri").getNodeValue();
 				if (!uri.startsWith("/")) {
-					throw new OperationException("Operation Definition Error: Uri of operation must start with '/'.");
+					throw new IllegalConfigException("Operation[" + uri +
+							"] Definition Error: Uri of operation must start with '/'.");
 				}
 
 				action = OperationReturnAction.getInstance(

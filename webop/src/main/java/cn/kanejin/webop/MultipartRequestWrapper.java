@@ -1,6 +1,7 @@
 package cn.kanejin.webop;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.slf4j.Logger;
@@ -53,9 +54,8 @@ public class MultipartRequestWrapper extends HttpServletRequestWrapper {
 		List<FileItem> itemList;
 		try {
 			itemList = upload.parseRequest(request);
-		} catch (Exception e) {
-			log.warn("Upload File Error : ", e);
-			return ;
+		} catch (FileUploadException e) {
+			throw new RuntimeException("Upload File Error", e);
 		}
 
 		log.debug("Start Extracting Parameters");

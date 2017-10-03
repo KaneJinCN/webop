@@ -8,6 +8,8 @@ import cn.kanejin.webop.core.annotation.PathVar;
 import cn.kanejin.webop.core.annotation.StepMethod;
 import cn.kanejin.webop.core.def.OperationDef;
 import cn.kanejin.webop.core.def.OperationStepDef;
+import cn.kanejin.webop.core.exception.OperationException;
+import cn.kanejin.webop.core.exception.StepDefinitionException;
 import org.apache.commons.fileupload.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.Collection;
 import java.util.Date;
 
@@ -68,10 +67,11 @@ class OperationStepExecutor {
         int retValue;
         try {
             retValue = (Integer) stepMethod.invoke(step, stepParams);
-        } catch (Throwable e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new OperationException(
-                    "Operation[" + operationDef.getUri() + "] Step[" + stepDef.getId() +
-                            "] Error", e);
+                    operationDef.getUri(), stepDef.getId(),
+                    "Invoke @StepMethod " + stepMethod.toGenericString() + " error",
+                    e);
         }
 
         log.info("Operation[{}] Step[{}] return value = [{}]",
@@ -81,8 +81,8 @@ class OperationStepExecutor {
 
         if (retAction == null) {
             throw new OperationException(
-                    "Operation[" + operationDef.getUri() + "] Step[" + stepDef.getId() +
-                            "] : No correct return-action is found");
+                    operationDef.getUri(), stepDef.getId(),
+                    "No return-action found when return " + retValue);
         }
 
         log.info("Operation[{}] Step[{}] return action = [{}]",
@@ -105,14 +105,18 @@ class OperationStepExecutor {
 
                 if (!method.getReturnType().isAssignableFrom(int.class)
                         && !method.getReturnType().isAssignableFrom(Integer.class)) {
-                    throw new OperationException("@StepMethod's return type must be int or Integer");
+
+                    throw new StepDefinitionException(
+                            step.getClass().getName(),
+                            "Return type of @StepMethod must be int or Integer");
                 }
 
                 return method;
             }
         }
 
-        throw new OperationException("No @StepMethod found in the Step class");
+        throw new StepDefinitionException(
+                step.getClass().getName(), "No @StepMethod found in Step class");
     }
 
 
@@ -180,8 +184,9 @@ class OperationStepExecutor {
 
         } else if (Collection.class.isAssignableFrom(p.getType())) { // 目标类型为Collection
 
-            throw new OperationException("@Param(name = \"" + ann.name() + "\") error: " +
-                    "Collection Type is not supported, Please use Array instead");
+            throw new IllegalArgumentException(
+                    "@Param(name = \"" + ann.name() + "\") error: " +
+                    "Collection Type is not supported. Use Array instead");
 
         } else { // 目标类型为其它，使用参数为String的构造器转换
             obj = castGeneralParamType(
@@ -226,7 +231,8 @@ class OperationStepExecutor {
                     context.getRequest().getParameter(p.getName()),
                     p.getType());
         } else {
-            throw new OperationException("Step Method parameter name is not specified");
+            log.warn("Step Method parameter name is not specified");
+            return null;
         }
     }
 
@@ -314,7 +320,8 @@ class OperationStepExecutor {
      */
     private Date castDateParamType(String paramValue, String pattern) {
         if (isBlank(pattern)) {
-            throw new OperationException("Date's pattern is required");
+            throw new IllegalArgumentException(
+                    "When param type is Date, pattern() in @Param or @PathVar is required");
         }
 
         return DateUtils.parseDate(paramValue, pattern);
@@ -391,11 +398,10 @@ class OperationStepExecutor {
 
         try {
             return (T) stringConstructor.newInstance(paramValue);
-        } catch (Throwable e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             log.warn("Create Instance of " + paramType + " from String \"" + paramValue + "\" Error", e);
 
             return null;
         }
     }
-
 }

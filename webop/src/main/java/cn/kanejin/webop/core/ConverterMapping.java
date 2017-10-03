@@ -1,15 +1,12 @@
 package cn.kanejin.webop.core;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import cn.kanejin.webop.core.exception.IllegalConfigException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ConverterMapping {
 	
-	private static final Logger log = LoggerFactory.getLogger(ConverterMapping.class);
-
 	private final Map<String, Converter> converterMap;
 
 	public ConverterMapping() {
@@ -30,8 +27,11 @@ public class ConverterMapping {
 	private Converter create(String className) {
 		try {
 			return (Converter) Class.forName(className).newInstance();
-		} catch (Exception e) {
-			throw new OperationException("Instant Converter class[" + className + "] error", e);
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+
+			throw new IllegalConfigException(
+					"Can't instantiate converter class[" + className + "]." +
+					" Check for the converter configuration", e);
 		}
 	}
 }

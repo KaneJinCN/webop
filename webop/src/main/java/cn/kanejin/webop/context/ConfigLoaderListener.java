@@ -24,7 +24,7 @@ public class ConfigLoaderListener implements ServletContextListener {
 		log.info("ContextInitialized");
 
 		log.info("Initializing Webop Context");
-		WebopContext.init();
+		WebopContext.init(event.getServletContext());
 
 		log.info("Loading webop configurations");
 		loadConfigFromLocations(event.getServletContext());

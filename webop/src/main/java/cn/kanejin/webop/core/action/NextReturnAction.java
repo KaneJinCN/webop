@@ -1,6 +1,6 @@
 package cn.kanejin.webop.core.action;
 
-import cn.kanejin.webop.core.OperationException;
+import cn.kanejin.webop.core.exception.OperationException;
 import cn.kanejin.webop.core.def.OperationDef;
 import cn.kanejin.webop.core.def.OperationStepDef;
 
@@ -27,8 +27,7 @@ public class NextReturnAction extends ProcessReturnAction {
 		if (nextStepIndex > 0 && nextStepIndex < steps.size())
 			return steps.get(nextStepIndex);
 
-		throw new OperationException(
-				"Operation[" + operationDef.getUri() + "] Next Step of [" + stepDef.getId() + "] not found");
+		throw new OperationException(operationDef.getUri(), stepDef.getId(), "Step is not found");
 	}
 
 	@Override

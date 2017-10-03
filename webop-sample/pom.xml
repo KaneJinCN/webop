@@ -4,7 +4,7 @@
     <groupId>cn.kanejin.webop</groupId>
     <artifactId>webop-sample</artifactId>
     <packaging>war</packaging>
-    <version>3.1.1</version>
+    <version>3.1.2-SNAPSHOT</version>
     <name>webop-sample Maven Webapp</name>
 
     <properties>

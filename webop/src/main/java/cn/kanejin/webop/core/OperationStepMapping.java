@@ -1,6 +1,7 @@
 package cn.kanejin.webop.core;
 
 import cn.kanejin.webop.core.def.OperationStepDef;
+import cn.kanejin.webop.core.exception.IllegalConfigException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,15 +37,17 @@ public class OperationStepMapping {
             OperationStep step =
                     (OperationStep) Class.forName(stepDef.getClazz()).newInstance();
 
+            ResourceInjector.getInstance().inject(step);
+
             if (step instanceof InitializableStep) {
                 ((InitializableStep) step).init(stepDef.getInitParams());
             }
 
-            ResourceInjector.getInstance().inject(step);
-
             return step;
-        } catch (Exception e) {
-            throw new OperationException("Instant step class[" + stepDef.getClazz() + "] error", e);
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            throw new IllegalConfigException(
+                    "Can't instantiate step class[" + stepDef.getClazz() + "]." +
+                            " Check for the step configuration", e);
         }
     }
 

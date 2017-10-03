@@ -24,7 +24,7 @@ public abstract class JsonConvertAction extends EndReturnAction {
         this.converter = converter;
     }
 
-    protected String convertToJson(OperationContext oc) throws IOException, ServletException {
+    protected String convertToJson(OperationContext oc) throws ServletException, IOException {
 
         Object jsonObj = oc.getAttribute(attribute);
 
