@@ -25,8 +25,8 @@
 package cn.kanejin.webop.core;
 
 import cn.kanejin.webop.core.exception.IllegalConfigException;
-import cn.kanejin.webop.core.view.FreemarkerViewRenderer;
 import cn.kanejin.webop.core.view.DefaultJspViewRenderer;
+import cn.kanejin.webop.core.view.FreemarkerViewRenderer;
 import cn.kanejin.webop.core.view.ViewRenderer;
 
 import javax.servlet.ServletContext;
@@ -54,7 +54,7 @@ public class WebopConfig {
     }
 
     public void setCharset(String charset) {
-        if (this.charset != null) {
+        if (isNotBlank(this.charset)) {
             throw new IllegalConfigException("Configuration <charset> has been set already");
         }
 
@@ -122,8 +122,8 @@ public class WebopConfig {
     public void setFreemarkerViewRenderer(ServletContext servletContext,
                                           String rendererClass,
                                           String prefix, String suffix, String contentType,
-                                          String templatePath, boolean noCache, Integer bufferSize,
-                                          boolean exceptionOnMissingTemplate,
+                                          String templatePath, Boolean noCache, Integer bufferSize,
+                                          Boolean exceptionOnMissingTemplate,
                                           String metaInfTldSources, String classpathTlds,
                                           Properties settings) {
 
@@ -142,9 +142,9 @@ public class WebopConfig {
             renderer.setContentType(nullTo(contentType, DEFAULT_CONTENT_TYPE));
 
             renderer.setTemplatePath(nullTo(templatePath, "/"));
-            renderer.setNoCache(noCache);
+            renderer.setNoCache(nullTo(noCache, true));
             renderer.setBufferSize(bufferSize);
-            renderer.setExceptionOnMissingTemplate(exceptionOnMissingTemplate);
+            renderer.setExceptionOnMissingTemplate(nullTo(exceptionOnMissingTemplate, true));
 
             renderer.setMetaInfTldSources(metaInfTldSources);
             renderer.setClasspathTlds(classpathTlds);
@@ -162,6 +162,9 @@ public class WebopConfig {
 
     private static String nullTo(String src, String to) {
         return isNotBlank(src) ? src : to;
+    }
+    private static Boolean nullTo(Boolean src, Boolean to) {
+        return src != null ? src : to;
     }
 
     private static final String DEFAULT_CHARSET = "UTF-8";

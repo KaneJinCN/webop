@@ -88,11 +88,11 @@ public class DefaultFreemarkerViewRenderer extends AbstractFreemarkerViewRendere
             e.printStackTrace();
             if (exceptionOnMissingTemplate) {
                 throw newServletExceptionWithFreeMarkerLogging(
-                        "Template not found for name " + StringUtil.jQuoteNoXSS(templatePath) + ".", e);
+                        "Template not found for name " + StringUtil.jQuoteNoXSS(templateName) + ".", e);
             } else {
                 if (log.isDebugEnabled()) {
                     log.debug("Responding HTTP 404 \"Not found\" for missing template "
-                            + StringUtil.jQuoteNoXSS(templatePath) + ".", e);
+                            + StringUtil.jQuoteNoXSS(templateName) + ".", e);
                 }
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Page template not found");
                 return;
@@ -109,7 +109,7 @@ public class DefaultFreemarkerViewRenderer extends AbstractFreemarkerViewRendere
         if(attrContentType != null) {
             response.setContentType(attrContentType.toString());
         } else {
-            if (contiansCharsetInContentType) {
+            if (containsCharsetInContentType) {
                 response.setContentType(contentType);
             } else {
                 response.setContentType(contentType + ";charset=" + template.getEncoding());

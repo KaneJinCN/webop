@@ -69,7 +69,7 @@ public abstract class AbstractFreemarkerViewRenderer extends AbstractViewRendere
 
     private static final Logger log = LoggerFactory.getLogger(AbstractFreemarkerViewRenderer.class);
 
-    protected boolean contiansCharsetInContentType = false;
+    protected boolean containsCharsetInContentType = false;
 
     protected String templatePath;
 
@@ -108,7 +108,7 @@ public abstract class AbstractFreemarkerViewRenderer extends AbstractViewRendere
     public void setContentType(String contentType) {
         super.setContentType(contentType);
 
-        contiansCharsetInContentType = Pattern.matches(".*;\\s*charset=.*", contentType.toLowerCase());
+        containsCharsetInContentType = Pattern.matches(".*;\\s*charset=.*", contentType.toLowerCase());
     }
 
     @Override
@@ -138,6 +138,9 @@ public abstract class AbstractFreemarkerViewRenderer extends AbstractViewRendere
     protected Configuration config;
 
     private void createConfiguration(Properties settings) {
+        if (settings == null)
+            settings = new Properties();
+
         config = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 
         // Only override what's coming from the config if it was explicitly specified:
