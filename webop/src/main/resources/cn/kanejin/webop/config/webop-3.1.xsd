@@ -329,21 +329,28 @@
             <xs:element name="classpath-tlds" type="xs:string" minOccurs="0"/>
             <xs:element name="settings" type="settingsType" minOccurs="0"/>
         </xs:all>
-        <xs:attribute name="class" type="xs:string" use="required"/>
+        <xs:attribute name="class" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="resourceProviderType">
-        <xs:attribute type="xs:string" name="class" use="required"/>
+        <xs:attribute type="xs:string" name="class"/>
     </xs:complexType>
 
+    <xs:simpleType name="viewTypeDefaultType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="jsp"/>
+            <xs:enumeration value="freemarker"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:complexType name="configType">
-        <xs:sequence>
-            <xs:element name="charset" type="xs:string"/>
-            <xs:element name="view-type-default" type="xs:string"/>
-            <xs:element name="jsp-renderer" type="jspRendererType"/>
-            <xs:element name="freemarker-renderer" type="freemarkerRendererType"/>
-            <xs:element name="resource-provider" type="resourceProviderType"/>
-        </xs:sequence>
+        <xs:all>
+            <xs:element name="charset" type="xs:string" minOccurs="0"/>
+            <xs:element name="view-type-default" type="viewTypeDefaultType" minOccurs="0"/>
+            <xs:element name="jsp-renderer" type="jspRendererType" minOccurs="0"/>
+            <xs:element name="freemarker-renderer" type="freemarkerRendererType" minOccurs="0"/>
+            <xs:element name="resource-provider" type="resourceProviderType" minOccurs="0"/>
+        </xs:all>
     </xs:complexType>
 
     <xs:element name="webop">

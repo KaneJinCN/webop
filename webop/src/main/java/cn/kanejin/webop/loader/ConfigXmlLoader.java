@@ -28,6 +28,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
+import static cn.kanejin.commons.util.StringUtils.isBlank;
 import static cn.kanejin.commons.util.StringUtils.isNotBlank;
 
 /**
@@ -62,6 +63,8 @@ public class ConfigXmlLoader {
 				} catch (IOException | SAXException | ParserConfigurationException e) {
 					log.warn("Can't load config file: " + file, e);
 				}
+
+				ensureConfigLoaded(servletContext);
 			}
 
 			// 然后再加载其它的xml文件
@@ -72,6 +75,35 @@ public class ConfigXmlLoader {
 					log.warn("Can't load xml file: " + file, e);
 				}
 			}
+		}
+	}
+
+	private void ensureConfigLoaded(ServletContext servletContext) {
+		WebopConfig config = WebopContext.get().getWebopConfig();
+
+		if (isBlank(config.getCharset())) {
+			config.setCharset(null);
+		}
+
+		if (isBlank(config.getDefaultViewType())) {
+			config.setDefaultViewType(null);
+		}
+
+		if (config.getJspViewRenderer() == null) {
+			config.setJspViewRenderer(servletContext, null, null, null);
+		}
+
+		if (config.getFreemarkerViewRenderer() == null) {
+			config.setFreemarkerViewRenderer(
+					servletContext,
+					null, null, null,
+					null, null, null,
+					null, null, null,
+					null, null);
+		}
+
+		if (config.getResourceProvider() == null) {
+			config.setResourceProvider(null);
 		}
 	}
 
@@ -145,7 +177,13 @@ public class ConfigXmlLoader {
 			} else if (node.getNodeName().equals("freemarker-renderer")) {
 				parseFreemarkerRenderer(sc, config, node);
 			} else if (node.getNodeName().equals("resource-provider")) {
-				config.setResourceProvider(node.getAttributes().getNamedItem("class").getNodeValue());
+
+				String providerClass = null;
+				if (node.getAttributes().getNamedItem("class") != null) {
+					providerClass = node.getAttributes().getNamedItem("class").getNodeValue();
+				}
+
+				config.setResourceProvider(providerClass);
 			}
 		}
 	}
@@ -177,19 +215,23 @@ public class ConfigXmlLoader {
 
 		NodeList nodeList = node.getChildNodes();
 
-		String renderClass = node.getAttributes().getNamedItem("class").getNodeValue();
+		String renderClass = null;
 
 		String prefix = null;
 		String suffix = null;
 		String contentType = null;
 		String templatePath = null;
-		boolean noCache = false;
+		Boolean noCache = null;
 		Integer bufferSize = null;
-		boolean exceptionOnMissingTemplate = false;
+		Boolean exceptionOnMissingTemplate = null;
 		String metaInfTldSources = null;
 		String classpathTlds = null;
 
 		Properties settings = null;
+
+		if (node.getAttributes().getNamedItem("class") != null) {
+			renderClass = node.getAttributes().getNamedItem("class").getNodeValue();
+		}
 
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node n = nodeList.item(i);
