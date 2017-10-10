@@ -1,200 +1,200 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<xsd:schema xmlns="http://www.kanejin.cn/schema/webop"
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="http://www.kanejin.cn/schema/webop"
-            elementFormDefault="qualified">
+<xs:schema xmlns="http://www.kanejin.cn/schema/webop"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.kanejin.cn/schema/webop"
+           elementFormDefault="qualified">
 
-    <xsd:complexType name="paramType">
-        <xsd:annotation>
-            <xsd:documentation>
+    <xs:complexType name="paramType">
+        <xs:annotation>
+            <xs:documentation>
 
                 初始化Step时的初始参数
 
                 Used in: init-params
 
-            </xsd:documentation>
-        </xsd:annotation>
+            </xs:documentation>
+        </xs:annotation>
 
-        <xsd:attribute name="name" type="xsd:string" use="required"/>
-        <xsd:attribute name="value" type="xsd:string" use="required"/>
-    </xsd:complexType>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="value" type="xs:string" use="required"/>
+    </xs:complexType>
 
-    <xsd:simpleType name="forwardTypeType">
-        <xsd:annotation>
-            <xsd:documentation>
+    <xs:simpleType name="forwardTypeType">
+        <xs:annotation>
+            <xs:documentation>
 
                 forward的文件类型，可以是jsp和freemarker
 
                 Used in: forward
 
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="jsp"/>
-            <!--<xsd:enumeration value="freemarker"/>-->
-        </xsd:restriction>
-    </xsd:simpleType>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="jsp"/>
+            <xs:enumeration value="freemarker"/>
+        </xs:restriction>
+    </xs:simpleType>
 
-    <xsd:complexType name="nextActionType"/>
-    <xsd:complexType name="stepActionType">
-        <xsd:attribute name="id" type="xsd:string" use="required"/>
-    </xsd:complexType>
-    <xsd:complexType name="forwardActionType">
-        <xsd:attribute name="type" type="forwardTypeType" default="jsp"/>
-        <xsd:attribute name="page" type="xsd:string" use="required"/>
-    </xsd:complexType>
-    <xsd:complexType name="redirectActionType">
-        <xsd:attribute name="page" type="xsd:string" use="required"/>
-    </xsd:complexType>
-    <xsd:complexType name="operationActionType">
-        <xsd:attribute name="uri" type="xsd:string" use="required"/>
-        <xsd:attribute name="params" type="xsd:string"/>
-    </xsd:complexType>
-    <xsd:complexType name="attributeActionType">
-        <xsd:attribute name="attr" type="xsd:string" use="required"/>
-    </xsd:complexType>
-    <xsd:complexType name="textActionType">
-        <xsd:attribute name="value" type="xsd:string" use="required"/>
-    </xsd:complexType>
-    <xsd:complexType name="jsonActionType">
-        <xsd:attribute name="attr" type="xsd:string" use="required"/>
-        <xsd:attribute name="converter" type="xsd:string"/>
-    </xsd:complexType>
-    <xsd:complexType name="jsonpActionType">
-        <xsd:attribute name="attr" type="xsd:string" use="required"/>
-        <xsd:attribute name="callback" type="xsd:string"/>
-        <xsd:attribute name="converter" type="xsd:string"/>
-    </xsd:complexType>
-    <xsd:complexType name="scriptActionType">
-        <xsd:attribute name="attr" type="xsd:string" use="required"/>
-        <xsd:attribute name="converter" type="xsd:string"/>
-    </xsd:complexType>
-    <xsd:complexType name="xmlActionType">
-        <xsd:attribute name="attr" type="xsd:string" use="required"/>
-        <xsd:attribute name="converter" type="xsd:string" use="required"/>
-    </xsd:complexType>
-    <xsd:complexType name="responseActionType">
-        <xsd:attribute name="status" type="xsd:string" use="required"/>
-    </xsd:complexType>
-    <xsd:complexType name="backActionType"/>
-    <xsd:complexType name="errorActionType"/>
+    <xs:complexType name="nextActionType"/>
+    <xs:complexType name="stepActionType">
+        <xs:attribute name="id" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="forwardActionType">
+        <xs:attribute name="type" type="forwardTypeType"/>
+        <xs:attribute name="page" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="redirectActionType">
+        <xs:attribute name="page" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="operationActionType">
+        <xs:attribute name="uri" type="xs:string" use="required"/>
+        <xs:attribute name="params" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="attributeActionType">
+        <xs:attribute name="attr" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="textActionType">
+        <xs:attribute name="value" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="jsonActionType">
+        <xs:attribute name="attr" type="xs:string" use="required"/>
+        <xs:attribute name="converter" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="jsonpActionType">
+        <xs:attribute name="attr" type="xs:string" use="required"/>
+        <xs:attribute name="callback" type="xs:string"/>
+        <xs:attribute name="converter" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="scriptActionType">
+        <xs:attribute name="attr" type="xs:string" use="required"/>
+        <xs:attribute name="converter" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="xmlActionType">
+        <xs:attribute name="attr" type="xs:string" use="required"/>
+        <xs:attribute name="converter" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="responseActionType">
+        <xs:attribute name="status" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="backActionType"/>
+    <xs:complexType name="errorActionType"/>
 
-    <xsd:complexType name="ifType">
-        <xsd:choice>
-            <xsd:element name="next" type="nextActionType"/>
-            <xsd:element name="step" type="stepActionType"/>
-            <xsd:element name="forward" type="forwardActionType"/>
-            <xsd:element name="redirect" type="redirectActionType"/>
-            <xsd:element name="operation" type="operationActionType"/>
-            <xsd:element name="attribute" type="attributeActionType"/>
-            <xsd:element name="text" type="textActionType"/>
-            <xsd:element name="json" type="jsonActionType"/>
-            <xsd:element name="jsonp" type="jsonpActionType"/>
-            <xsd:element name="script" type="scriptActionType"/>
-            <xsd:element name="xml" type="xmlActionType"/>
-            <xsd:element name="response" type="responseActionType"/>
-            <xsd:element name="back" type="backActionType"/>
-            <xsd:element name="error" type="errorActionType"/>
-        </xsd:choice>
-        <xsd:attribute name="return" type="xsd:int"/>
-    </xsd:complexType>
+    <xs:complexType name="ifType">
+        <xs:choice>
+            <xs:element name="next" type="nextActionType"/>
+            <xs:element name="step" type="stepActionType"/>
+            <xs:element name="forward" type="forwardActionType"/>
+            <xs:element name="redirect" type="redirectActionType"/>
+            <xs:element name="operation" type="operationActionType"/>
+            <xs:element name="attribute" type="attributeActionType"/>
+            <xs:element name="text" type="textActionType"/>
+            <xs:element name="json" type="jsonActionType"/>
+            <xs:element name="jsonp" type="jsonpActionType"/>
+            <xs:element name="script" type="scriptActionType"/>
+            <xs:element name="xml" type="xmlActionType"/>
+            <xs:element name="response" type="responseActionType"/>
+            <xs:element name="back" type="backActionType"/>
+            <xs:element name="error" type="errorActionType"/>
+        </xs:choice>
+        <xs:attribute name="return" type="xs:int"/>
+    </xs:complexType>
 
-    <xsd:complexType name="elseType">
-        <xsd:choice>
-            <xsd:element name="next" type="nextActionType"/>
-            <xsd:element name="step" type="stepActionType"/>
-            <xsd:element name="forward" type="forwardActionType"/>
-            <xsd:element name="redirect" type="redirectActionType"/>
-            <xsd:element name="operation" type="operationActionType"/>
-            <xsd:element name="attribute" type="attributeActionType"/>
-            <xsd:element name="text" type="textActionType"/>
-            <xsd:element name="json" type="jsonActionType"/>
-            <xsd:element name="jsonp" type="jsonpActionType"/>
-            <xsd:element name="script" type="scriptActionType"/>
-            <xsd:element name="xml" type="xmlActionType"/>
-            <xsd:element name="response" type="responseActionType"/>
-            <xsd:element name="back" type="backActionType"/>
-            <xsd:element name="error" type="errorActionType"/>
-        </xsd:choice>
-    </xsd:complexType>
+    <xs:complexType name="elseType">
+        <xs:choice>
+            <xs:element name="next" type="nextActionType"/>
+            <xs:element name="step" type="stepActionType"/>
+            <xs:element name="forward" type="forwardActionType"/>
+            <xs:element name="redirect" type="redirectActionType"/>
+            <xs:element name="operation" type="operationActionType"/>
+            <xs:element name="attribute" type="attributeActionType"/>
+            <xs:element name="text" type="textActionType"/>
+            <xs:element name="json" type="jsonActionType"/>
+            <xs:element name="jsonp" type="jsonpActionType"/>
+            <xs:element name="script" type="scriptActionType"/>
+            <xs:element name="xml" type="xmlActionType"/>
+            <xs:element name="response" type="responseActionType"/>
+            <xs:element name="back" type="backActionType"/>
+            <xs:element name="error" type="errorActionType"/>
+        </xs:choice>
+    </xs:complexType>
 
-    <xsd:complexType name="initParamsType">
-        <xsd:sequence>
-            <xsd:element name="param" type="paramType" maxOccurs="unbounded"/>
-        </xsd:sequence>
-    </xsd:complexType>
+    <xs:complexType name="initParamsType">
+        <xs:sequence>
+            <xs:element name="param" type="paramType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
-    <xsd:complexType name="returnActionType">
-        <xsd:annotation>
-            <xsd:documentation>
+    <xs:complexType name="returnActionType">
+        <xs:annotation>
+            <xs:documentation>
 
                 根据Step的返回值，执行对应的操作
 
                 Used in: step
 
-            </xsd:documentation>
-        </xsd:annotation>
+            </xs:documentation>
+        </xs:annotation>
 
-        <xsd:choice>
-            <xsd:sequence>
-                <xsd:element name="if" type="ifType" maxOccurs="5"/>
-                <xsd:element name="else" type="elseType"/>
-            </xsd:sequence>
-            <xsd:choice>
-                <xsd:element name="forward" type="forwardActionType"/>
-                <xsd:element name="redirect" type="redirectActionType"/>
-                <xsd:element name="operation" type="operationActionType"/>
-                <xsd:element name="attribute" type="attributeActionType"/>
-                <xsd:element name="text" type="textActionType"/>
-                <xsd:element name="json" type="jsonActionType"/>
-                <xsd:element name="jsonp" type="jsonpActionType"/>
-                <xsd:element name="script" type="scriptActionType"/>
-                <xsd:element name="xml" type="xmlActionType"/>
-                <xsd:element name="response" type="responseActionType"/>
-                <xsd:element name="back" type="backActionType"/>
-                <xsd:element name="error" type="errorActionType"/>
-            </xsd:choice>
+        <xs:choice>
+            <xs:sequence>
+                <xs:element name="if" type="ifType" maxOccurs="5"/>
+                <xs:element name="else" type="elseType"/>
+            </xs:sequence>
+            <xs:choice>
+                <xs:element name="forward" type="forwardActionType"/>
+                <xs:element name="redirect" type="redirectActionType"/>
+                <xs:element name="operation" type="operationActionType"/>
+                <xs:element name="attribute" type="attributeActionType"/>
+                <xs:element name="text" type="textActionType"/>
+                <xs:element name="json" type="jsonActionType"/>
+                <xs:element name="jsonp" type="jsonpActionType"/>
+                <xs:element name="script" type="scriptActionType"/>
+                <xs:element name="xml" type="xmlActionType"/>
+                <xs:element name="response" type="responseActionType"/>
+                <xs:element name="back" type="backActionType"/>
+                <xs:element name="error" type="errorActionType"/>
+            </xs:choice>
 
-        </xsd:choice>
-    </xsd:complexType>
+        </xs:choice>
+    </xs:complexType>
 
 
-    <xsd:complexType name="stepType">
-        <xsd:sequence>
-            <xsd:element name="init-params" type="initParamsType" minOccurs="0"/>
-            <xsd:element name="return-action" type="returnActionType"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:string" use="required"/>
-        <xsd:attribute name="class" type="xsd:string" use="required"/>
-    </xsd:complexType>
+    <xs:complexType name="stepType">
+        <xs:sequence>
+            <xs:element name="init-params" type="initParamsType" minOccurs="0"/>
+            <xs:element name="return-action" type="returnActionType"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="required"/>
+        <xs:attribute name="class" type="xs:string" use="required"/>
+    </xs:complexType>
 
-    <xsd:complexType name="operationInterceptorType">
-        <xsd:attribute name="ref" type="xsd:string" use="required"/>
-    </xsd:complexType>
+    <xs:complexType name="operationInterceptorType">
+        <xs:attribute name="ref" type="xs:string" use="required"/>
+    </xs:complexType>
 
-    <xsd:simpleType name="timeUnitType">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="millis"/>
-            <xsd:enumeration value="seconds"/>
-            <xsd:enumeration value="minutes"/>
-            <xsd:enumeration value="hours"/>
-            <xsd:enumeration value="days"/>
-        </xsd:restriction>
-    </xsd:simpleType>
+    <xs:simpleType name="timeUnitType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="millis"/>
+            <xs:enumeration value="seconds"/>
+            <xs:enumeration value="minutes"/>
+            <xs:enumeration value="hours"/>
+            <xs:enumeration value="days"/>
+        </xs:restriction>
+    </xs:simpleType>
 
-    <xsd:complexType name="expiryTimeType">
-        <xsd:simpleContent>
-            <xsd:extension base="xsd:positiveInteger">
-                <xsd:attribute name="unit" type="timeUnitType" default="seconds"/>
-            </xsd:extension>
-        </xsd:simpleContent>
-    </xsd:complexType>
+    <xs:complexType name="expiryTimeType">
+        <xs:simpleContent>
+            <xs:extension base="xs:positiveInteger">
+                <xs:attribute name="unit" type="timeUnitType" default="seconds"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
 
-    <xsd:complexType name="eternalType"/>
+    <xs:complexType name="eternalType"/>
 
-    <xsd:complexType name="expiryType">
-        <xsd:annotation>
-            <xsd:documentation>
+    <xs:complexType name="expiryType">
+        <xs:annotation>
+            <xs:documentation>
 
                 缓存过期时间
 
@@ -204,93 +204,156 @@
 
                 Used in: cache
 
-            </xsd:documentation>
-        </xsd:annotation>
+            </xs:documentation>
+        </xs:annotation>
 
-        <xsd:choice>
-            <xsd:element name="ttl" type="expiryTimeType"/>
-            <xsd:element name="tti" type="expiryTimeType"/>
-            <xsd:element name="eternal" type="eternalType"/>
-        </xsd:choice>
+        <xs:choice>
+            <xs:element name="ttl" type="expiryTimeType"/>
+            <xs:element name="tti" type="expiryTimeType"/>
+            <xs:element name="eternal" type="eternalType"/>
+        </xs:choice>
 
-    </xsd:complexType>
+    </xs:complexType>
 
 
-    <xsd:complexType name="operationCacheType">
-        <xsd:annotation>
-            <xsd:documentation>
+    <xs:complexType name="operationCacheType">
+        <xs:annotation>
+            <xs:documentation>
 
                 定义Operation的缓存
 
                 Used in: operation
 
-            </xsd:documentation>
-        </xsd:annotation>
+            </xs:documentation>
+        </xs:annotation>
 
-        <xsd:sequence>
-            <xsd:element name="expiry" type="expiryType" minOccurs="0"/>
-            <xsd:element name="key-field" type="xsd:string" minOccurs="0" maxOccurs="unbounded">
-                <xsd:annotation>
-                    <xsd:documentation>
+        <xs:sequence>
+            <xs:element name="expiry" type="expiryType" minOccurs="0"/>
+            <xs:element name="key-field" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
                         缓存key生成时所用的参数
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-        </xsd:sequence>
-    </xsd:complexType>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
 
-    <xsd:simpleType name="httpMethodType">
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="GET"/>
-            <xsd:enumeration value="POST"/>
-        </xsd:restriction>
-    </xsd:simpleType>
+    <xs:simpleType name="httpMethodType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="GET"/>
+            <xs:enumeration value="POST"/>
+        </xs:restriction>
+    </xs:simpleType>
 
-    <xsd:simpleType name="operationMethodType">
-        <xsd:list itemType="httpMethodType"/>
-    </xsd:simpleType>
+    <xs:simpleType name="operationMethodType">
+        <xs:list itemType="httpMethodType"/>
+    </xs:simpleType>
 
-    <xsd:complexType name="operationType">
-        <xsd:sequence>
-            <xsd:element name="description" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="cache" type="operationCacheType" minOccurs="0"/>
-            <xsd:element name="interceptor" type="operationInterceptorType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="step" type="stepType" maxOccurs="unbounded"/>
-        </xsd:sequence>
-        <xsd:attribute name="uri" type="xsd:string" use="required"/>
-        <xsd:attribute name="method" type="operationMethodType"/>
-        <xsd:attribute name="name" type="xsd:string"/>
-    </xsd:complexType>
+    <xs:complexType name="operationType">
+        <xs:sequence>
+            <xs:element name="description" type="xs:string" minOccurs="0"/>
+            <xs:element name="cache" type="operationCacheType" minOccurs="0"/>
+            <xs:element name="interceptor" type="operationInterceptorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="step" type="stepType" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="uri" type="xs:string" use="required"/>
+        <xs:attribute name="method" type="operationMethodType"/>
+        <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
 
-    <xsd:complexType name="interceptorType">
-        <xsd:sequence>
-            <xsd:element name="description" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="init-params" type="initParamsType" minOccurs="0"/>
-        </xsd:sequence>
-        <xsd:attribute name="id" type="xsd:string" use="required"/>
-        <xsd:attribute name="class" type="xsd:string" use="required"/>
-    </xsd:complexType>
+    <xs:complexType name="interceptorType">
+        <xs:sequence>
+            <xs:element name="description" type="xs:string" minOccurs="0"/>
+            <xs:element name="init-params" type="initParamsType" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="required"/>
+        <xs:attribute name="class" type="xs:string" use="required"/>
+    </xs:complexType>
 
-    <xsd:complexType name="configEntryType">
-        <xsd:attribute name="key" type="xsd:string" use="required"/>
-        <xsd:attribute name="value" type="xsd:string" use="required"/>
-    </xsd:complexType>
-    
-    <xsd:complexType name="configType">
-        <xsd:sequence>
-            <xsd:element name="config-properties" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="config-entry" type="configEntryType" minOccurs="0" maxOccurs="unbounded"/>
-        </xsd:sequence>
-    </xsd:complexType>
+    <xs:complexType name="jspRendererType">
+        <xs:annotation>
+            <xs:documentation>JSP页面渲染器配置</xs:documentation>
+        </xs:annotation>
+        <xs:all>
+            <xs:element name="prefix" type="xs:string" minOccurs="0"/>
+            <xs:element name="suffix" type="xs:string" minOccurs="0"/>
+            <xs:element name="content-type" type="xs:string" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
 
-    <xsd:element name="webop">
-        <xsd:complexType>
-            <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                <xsd:element name="config" type="configType"/>
-                <xsd:element name="interceptor" type="interceptorType"/>
-                <xsd:element name="operation" type="operationType"/>
-            </xsd:choice>
-        </xsd:complexType>
-    </xsd:element>
+    <xs:complexType name="propType">
+        <xs:annotation>
+            <xs:documentation>Properties项的配置</xs:documentation>
+        </xs:annotation>
 
-</xsd:schema>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="key" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="propsType">
+        <xs:annotation>
+            <xs:documentation>定义Properties</xs:documentation>
+        </xs:annotation>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="prop" type="propType"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="settingsType">
+        <xs:annotation>
+            <xs:documentation>Freemarker配置</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="props-file" type="xs:string"/>
+            <xs:element name="props" type="propsType"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="freemarkerRendererType">
+        <xs:annotation>
+            <xs:documentation>Freemarker的渲染器</xs:documentation>
+        </xs:annotation>
+        <xs:all>
+            <xs:element name="prefix" type="xs:string" minOccurs="0"/>
+            <xs:element name="suffix" type="xs:string" minOccurs="0"/>
+            <xs:element name="content-type" type="xs:string" minOccurs="0"/>
+            <xs:element name="template-path" type="xs:string" minOccurs="0"/>
+            <xs:element name="no-cache" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="buffer-size" type="xs:integer" minOccurs="0"/>
+            <xs:element name="exception-on-missing-template" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="meta-inf-tld-sources" type="xs:string" minOccurs="0"/>
+            <xs:element name="classpath-tlds" type="xs:string" minOccurs="0"/>
+            <xs:element name="settings" type="settingsType" minOccurs="0"/>
+        </xs:all>
+        <xs:attribute name="class" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="resourceProviderType">
+        <xs:attribute type="xs:string" name="class" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="configType">
+        <xs:sequence>
+            <xs:element name="charset" type="xs:string"/>
+            <xs:element name="view-type-default" type="xs:string"/>
+            <xs:element name="jsp-renderer" type="jspRendererType"/>
+            <xs:element name="freemarker-renderer" type="freemarkerRendererType"/>
+            <xs:element name="resource-provider" type="resourceProviderType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="webop">
+        <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="config" type="configType"/>
+                <xs:element name="interceptor" type="interceptorType"/>
+                <xs:element name="operation" type="operationType"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

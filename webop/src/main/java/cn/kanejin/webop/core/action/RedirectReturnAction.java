@@ -6,7 +6,7 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 
 public class RedirectReturnAction extends EndReturnAction {
-	public static RedirectReturnAction getInstance(String page) {
+	public static RedirectReturnAction build(String page) {
 		return new RedirectReturnAction(page);
 	}
 

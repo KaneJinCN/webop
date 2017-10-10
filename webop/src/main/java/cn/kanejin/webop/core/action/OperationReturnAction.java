@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class OperationReturnAction extends EndReturnAction {
 	private static final Pattern PARAM_PATTERN = Pattern.compile("\\{[^\\}]+\\}");	
 	
-	public static OperationReturnAction getInstance(String opUri, String opParams) {
+	public static OperationReturnAction build(String opUri, String opParams) {
 		return new OperationReturnAction(opUri, opParams);
 	}
 
@@ -58,7 +58,7 @@ public class OperationReturnAction extends EndReturnAction {
 			String attrValue = req.getAttribute(attrKey) == null ? "" : req.getAttribute(attrKey).toString();
 			
 			resultString = resultString.replace(replaceHolder, attrValue);
-		};
+		}
 		
 		return resultString;
 	}

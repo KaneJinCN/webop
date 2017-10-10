@@ -15,7 +15,7 @@ import static cn.kanejin.commons.util.StringUtils.isNotEmpty;
 public class JsonpReturnAction extends JsonConvertAction {
 	private static final Logger log = LoggerFactory.getLogger(JsonpReturnAction.class);
 
-	public static JsonpReturnAction getInstance(String attribute, String callback, String converter) {
+	public static JsonpReturnAction build(String attribute, String callback, String converter) {
 		return new JsonpReturnAction(attribute, callback, converter);
 	}
 

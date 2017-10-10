@@ -5,7 +5,7 @@ import cn.kanejin.webop.core.def.OperationStepDef;
 import cn.kanejin.webop.core.exception.OperationException;
 
 public class StepReturnAction extends ProcessReturnAction {
-	public static StepReturnAction getInstance(String stepId) {
+	public static StepReturnAction build(String stepId) {
 		return new StepReturnAction(stepId);
 	}
 

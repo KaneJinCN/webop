@@ -328,4 +328,13 @@
 
 	</operation>
 	
+	<operation uri="/sample/freemarker">
+		<step id="firstStep" class="cn.kanejin.webop.sample.opstep.FreemarkerStep">
+			<return-action>
+				<if return="0"><forward page="hello.ftl" type="freemarker"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+	
 </webop>

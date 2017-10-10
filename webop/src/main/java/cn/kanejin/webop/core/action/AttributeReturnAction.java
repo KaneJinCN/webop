@@ -13,7 +13,7 @@ import java.io.PrintWriter;
 public class AttributeReturnAction extends EndReturnAction {
 	private static final Logger log = LoggerFactory.getLogger(AttributeReturnAction.class);
 
-	public static AttributeReturnAction getInstance(String attribute) {
+	public static AttributeReturnAction build(String attribute) {
 		return new AttributeReturnAction(attribute);
 	}
 

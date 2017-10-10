@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.kanejin.webop</groupId>
-    <artifactId>webop-spring</artifactId>
+    <artifactId>webop-freemarker</artifactId>
     <version>3.1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>webop-spring</name>
-    <description>Webop's spring plugin</description>
+    <name>webop-freemarker</name>
+    <description>Webop's freemarker plugin</description>
     <url>https://github.com/KaneJinCN/webop</url>
 
     <inceptionYear>2017</inceptionYear>
@@ -52,7 +52,6 @@
         </repository>
     </distributionManagement>
 
-
     <dependencies>
         <dependency>
             <groupId>cn.kanejin.webop</groupId>
@@ -61,10 +60,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>4.3.3.RELEASE</version>
-            <scope>provided</scope>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.23</version>
         </dependency>
 
         <dependency>
@@ -73,7 +71,6 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
 

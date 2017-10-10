@@ -4,5 +4,6 @@
 
 webop/target/
 webop-spring/target/
+webop-freemarker/target/
 webop-sample/target/
 

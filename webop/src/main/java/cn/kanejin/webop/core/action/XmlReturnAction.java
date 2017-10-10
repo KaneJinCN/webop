@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 public class XmlReturnAction extends EndReturnAction {
 	private static final Logger log = LoggerFactory.getLogger(XmlReturnAction.class);
 
-	public static XmlReturnAction getInstance(String attribute, String converter) {
+	public static XmlReturnAction build(String attribute, String converter) {
 		return new XmlReturnAction(attribute, converter);
 	}
 

@@ -3,6 +3,7 @@ package cn.kanejin.webop.loader;
 import cn.kanejin.commons.util.NumberUtils;
 import cn.kanejin.webop.core.InterceptorMapping;
 import cn.kanejin.webop.core.OperationMapping;
+import cn.kanejin.webop.core.WebopConfig;
 import cn.kanejin.webop.core.WebopContext;
 import cn.kanejin.webop.core.action.*;
 import cn.kanejin.webop.core.def.*;
@@ -30,7 +31,6 @@ import java.util.*;
 import static cn.kanejin.commons.util.StringUtils.isNotBlank;
 
 /**
- * @version $Id: OperationXmlLoader.java 115 2016-03-15 06:34:36Z Kane $
  * @author Kane Jin
  */
 public class ConfigXmlLoader {
@@ -50,7 +50,7 @@ public class ConfigXmlLoader {
 			return;
 
 		for (String location : locations) {
-			String[] files = parseConfigLocations(servletContext, location);
+			String[] files = parseXmlLocations(servletContext, location);
 
 			if (files == null || files.length == 0)
 				continue;
@@ -68,7 +68,7 @@ public class ConfigXmlLoader {
 	/**
 	 * 解析通配符路径，把所有匹配的文件全部找出
  	 */
-	private String[] parseConfigLocations(ServletContext sc, String configLocation) {
+	private String[] parseXmlLocations(ServletContext sc, String configLocation) {
 		String locationPath = configLocation.substring(0, configLocation.lastIndexOf("/"));
 		while (locationPath.contains("*") || locationPath.contains("?")) {
 			locationPath = locationPath.substring(0, locationPath.lastIndexOf("/"));
@@ -107,85 +107,149 @@ public class ConfigXmlLoader {
 	}
 
 	private void loadConfig(ServletContext sc, Node configNode) {
-		List<String> propertiesFiles = parseConfigProperties(configNode);
+		WebopConfig config = WebopContext.get().getWebopConfig();
 
-		if (propertiesFiles != null && !propertiesFiles.isEmpty()) {
+		NodeList nodes = configNode.getChildNodes();
 
-			for (String file : propertiesFiles) {
-				File pFile = new File(sc.getRealPath(file));
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Node node = nodes.item(i);
 
-				if (!pFile.exists() || !pFile.isFile()) {
-					continue;
-				}
-
-				try {
-					Properties p = new Properties();
-					p.load(new FileInputStream(pFile));
-
-					for (Object key : p.keySet()) {
-						WebopContext.get().setConfig((String)key, p.getProperty((String)key));
-
-					}
-
-				} catch (IOException e) {
-					log.warn("Can't load config properties file " + file, e);
-				}
+			if (node.getNodeName().equals("charset")) {
+				config.setCharset(node.getTextContent());
+			} else if (node.getNodeName().equals("view-type-default")) {
+				config.setDefaultViewType(node.getTextContent());
+			} else if (node.getNodeName().equals("jsp-renderer")) {
+				parseJspRenderer(sc, config, node);
+			} else if (node.getNodeName().equals("freemarker-renderer")) {
+				parseFreemarkerRenderer(sc, config, node);
+			} else if (node.getNodeName().equals("resource-provider")) {
+				config.setResourceProvider(node.getAttributes().getNamedItem("class").getNodeValue());
 			}
-		}
-
-		Map<String, String> entries = parseConfigEntries(configNode);
-
-		for (String key: entries.keySet()) {
-			WebopContext.get().setConfig(key, entries.get(key));
 		}
 	}
 
-	private Map<String, String> parseConfigEntries(Node configNode) {
-		Map<String, String> entries = new HashMap<>();
+	private void parseJspRenderer(ServletContext sc, WebopConfig config, Node node) {
 
-		NodeList entryNodes = configNode.getChildNodes();
+		NodeList nodeList = node.getChildNodes();
 
-		for (int i = 0; i < entryNodes.getLength(); i++) {
-			Node entryNode = entryNodes.item(i);
+		String prefix = null;
+		String suffix = null;
+		String contentType = null;
 
-			if (entryNode.getNodeName().equals("config-entry")) {
-				NamedNodeMap entryAttr = entryNode.getAttributes();
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node n = nodeList.item(i);
 
-				String key = entryAttr.getNamedItem("key").getNodeValue();
-				String value = entryAttr.getNamedItem("value").getNodeValue();
-
-				if (isNotBlank(key) && isNotBlank(value)) {
-					entries.put(key, value);
-				}
+			if (n.getNodeName().equals("prefix")) {
+				prefix = n.getTextContent();
+			} else if (n.getNodeName().equals("suffix")) {
+				suffix = n.getTextContent();
+			} else if (n.getNodeName().equals("content-type")) {
+				contentType = n.getTextContent();
 			}
 		}
 
-		return entries;
-
+		config.setJspViewRenderer(sc, prefix, suffix, contentType);
 	}
 
-	private List<String> parseConfigProperties(Node configNode) {
-		List<String> propertiesFiles = new ArrayList<>();
+	private void parseFreemarkerRenderer(ServletContext sc, WebopConfig config, Node node) {
 
-		NodeList propertiesNodes = configNode.getChildNodes();
+		NodeList nodeList = node.getChildNodes();
 
-		for (int i = 0; i < propertiesNodes.getLength(); i++) {
-			Node propertiesNode = propertiesNodes.item(i);
+		String renderClass = node.getAttributes().getNamedItem("class").getNodeValue();
 
-			if (propertiesNode.getNodeName().equals("config-properties")) {
-				String propertiesValue = propertiesNode.getTextContent();
+		String prefix = null;
+		String suffix = null;
+		String contentType = null;
+		String templatePath = null;
+		boolean noCache = false;
+		Integer bufferSize = null;
+		boolean exceptionOnMissingTemplate = false;
+		String metaInfTldSources = null;
+		String classpathTlds = null;
 
-				if (isNotBlank(propertiesValue)) {
-					for (String v : propertiesValue.trim().split("(\\s*,\\s*)|(\\s+)")) {
-						propertiesFiles.add(v);
-					}
-				}
+		Properties settings = null;
+
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node n = nodeList.item(i);
+
+			if (n.getNodeName().equals("prefix")) {
+				prefix = n.getTextContent();
+			} else if (n.getNodeName().equals("suffix")) {
+				suffix = n.getTextContent();
+			} else if (n.getNodeName().equals("content-type")) {
+				contentType = n.getTextContent();
+			} else if (n.getNodeName().equals("template-path")) {
+				templatePath = n.getTextContent();
+			} else if (n.getNodeName().equals("no-cache")) {
+				noCache = Boolean.valueOf(n.getTextContent());
+			} else if (n.getNodeName().equals("buffer-size")) {
+				bufferSize = NumberUtils.toInt(n.getTextContent(), null);
+			} else if (n.getNodeName().equals("exception-on-missing-template")) {
+				exceptionOnMissingTemplate = Boolean.valueOf(n.getTextContent());
+			} else if (n.getNodeName().equals("meta-inf-tld-sources")) {
+				metaInfTldSources = n.getTextContent();
+			} else if (n.getNodeName().equals("classpath-tlds")) {
+				classpathTlds = n.getTextContent();
+			} else if (n.getNodeName().equals("settings")) {
+				settings = parseSettings(sc, n);
 			}
 		}
 
-		return propertiesFiles;
+		config.setFreemarkerViewRenderer(
+				sc, renderClass,
+				prefix, suffix, contentType,
+				templatePath,noCache,bufferSize, exceptionOnMissingTemplate,
+				metaInfTldSources, classpathTlds, settings);
 	}
-	
+
+	private Properties parseSettings(ServletContext sc, Node node) {
+		NodeList nodeList = node.getChildNodes();
+
+		Properties settings = new Properties();
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node n = nodeList.item(i);
+			if (n.getNodeName().equals("props-file")) {
+				settings = parseSettingsFromFile(sc, n.getTextContent());
+			} else if (n.getNodeName().equals("props")) {
+				settings = parseSettingsFromNode(sc, n);
+			}
+		}
+
+		return settings;
+	}
+
+	private Properties parseSettingsFromFile(ServletContext sc, String file) {
+		Properties ps = new Properties();
+
+		try {
+			ps.load(sc.getResourceAsStream(file));
+		} catch (IOException e) {
+			throw new IllegalConfigException("Can't load properties file: " + file, e);
+		}
+
+		return ps;
+	}
+
+	private Properties parseSettingsFromNode(ServletContext sc, Node node) {
+		NodeList nodeList = node.getChildNodes();
+
+		Properties ps = new Properties();
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node n = nodeList.item(i);
+
+			if (!n.getNodeName().equals("prop")) {
+				continue;
+			}
+
+			String key = n.getAttributes().getNamedItem("key").getNodeValue();
+			String value = n.getTextContent();
+
+			ps.setProperty(key, value);
+		}
+
+		return ps;
+	}
+
 	private void loadOperations(Node opNode) {
 		NamedNodeMap opAttr = opNode.getAttributes();
 		
@@ -463,13 +527,19 @@ public class ConfigXmlLoader {
 			}
 
 			if (actionType.equals("next")) {
-				action = NextReturnAction.getInstance();
+				action = NextReturnAction.build();
 			} else if (actionType.equals("step")) {
-				action = StepReturnAction.getInstance(actionAttr.getNamedItem("id").getNodeValue());
+				action = StepReturnAction.build(actionAttr.getNamedItem("id").getNodeValue());
 			} else if (actionType.equals("forward")) {
-				action = ForwardReturnAction.getInstance(actionAttr.getNamedItem("page").getNodeValue());
+				String type = WebopContext.get().getWebopConfig().getDefaultViewType();
+				if (actionAttr.getNamedItem("type") != null) {
+					type = actionAttr.getNamedItem("type").getNodeValue();
+				}
+				String page = actionAttr.getNamedItem("page").getNodeValue();
+
+				action = ForwardReturnAction.build(type, page);
 			} else if (actionType.equals("redirect")) {
-				action = RedirectReturnAction.getInstance(actionAttr.getNamedItem("page").getNodeValue());
+				action = RedirectReturnAction.build(actionAttr.getNamedItem("page").getNodeValue());
 			} else if (actionType.equals("operation")) {
 				String uri = actionAttr.getNamedItem("uri").getNodeValue();
 				if (!uri.startsWith("/")) {
@@ -477,40 +547,40 @@ public class ConfigXmlLoader {
 							"] Definition Error: Uri of operation must start with '/'.");
 				}
 
-				action = OperationReturnAction.getInstance(
+				action = OperationReturnAction.build(
 						uri,
 						actionAttr.getNamedItem("params") != null ? actionAttr.getNamedItem("params").getNodeValue() : null);
 			} else if (actionType.equals("script")) {
-				action = ScriptReturnAction.getInstance(
+				action = ScriptReturnAction.build(
 					actionAttr.getNamedItem("attr").getNodeValue(),
 					actionAttr.getNamedItem("converter") != null ? actionAttr.getNamedItem("converter").getNodeValue() : null
 				);
 			} else if (actionType.equals("attribute")) {
-				action = AttributeReturnAction.getInstance(actionAttr.getNamedItem("attr").getNodeValue());
+				action = AttributeReturnAction.build(actionAttr.getNamedItem("attr").getNodeValue());
 			} else if (actionType.equals("text")) {
-				action = TextReturnAction.getInstance(actionAttr.getNamedItem("value").getNodeValue());
+				action = TextReturnAction.build(actionAttr.getNamedItem("value").getNodeValue());
 			} else if (actionType.equals("json")) {
-				action = JsonReturnAction.getInstance(
+				action = JsonReturnAction.build(
 					actionAttr.getNamedItem("attr").getNodeValue(),
 					actionAttr.getNamedItem("converter") != null ? actionAttr.getNamedItem("converter").getNodeValue() : null
 				);
 			} else if (actionType.equals("jsonp")) {
-				action = JsonpReturnAction.getInstance(
+				action = JsonpReturnAction.build(
 					actionAttr.getNamedItem("attr").getNodeValue(),
 					actionAttr.getNamedItem("callback") != null ? actionAttr.getNamedItem("callback").getNodeValue() : null,
 					actionAttr.getNamedItem("converter") != null ? actionAttr.getNamedItem("converter").getNodeValue() : null
 				);
 			} else if (actionType.equals("xml")) {
-				action = XmlReturnAction.getInstance(
+				action = XmlReturnAction.build(
 					actionAttr.getNamedItem("attr").getNodeValue(),
 					actionAttr.getNamedItem("converter").getNodeValue()
 				);
 			} else if (actionType.equals("response")) {
-				action = ResponseReturnAction.getInstance(actionAttr.getNamedItem("status").getNodeValue());
+				action = ResponseReturnAction.build(actionAttr.getNamedItem("status").getNodeValue());
 			} else if (actionType.equals("back")) {
-				action = BackReturnAction.getInstance();
+				action = BackReturnAction.build();
 			} else if (actionType.equals("error")) {
-				action = ErrorReturnAction.getInstance();
+				action = ErrorReturnAction.build();
 			}
 			
 			opStepDef.addReturnAction(returnValueKey, action);

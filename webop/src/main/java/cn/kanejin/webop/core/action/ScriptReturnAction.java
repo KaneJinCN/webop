@@ -13,7 +13,7 @@ import java.io.PrintWriter;
 public class ScriptReturnAction extends JsonConvertAction {
 	private static final Logger log = LoggerFactory.getLogger(ScriptReturnAction.class);
 	
-	public static ScriptReturnAction getInstance(String attribute, String converter) {
+	public static ScriptReturnAction build(String attribute, String converter) {
 		return new ScriptReturnAction(attribute, converter);
 	}
 	

@@ -16,7 +16,7 @@ import static cn.kanejin.commons.util.StringUtils.nullToEmpty;
 public class TextReturnAction extends EndReturnAction {
 	private static final Logger log = LoggerFactory.getLogger(TextReturnAction.class);
 
-	public static TextReturnAction getInstance(String value) {
+	public static TextReturnAction build(String value) {
 		return new TextReturnAction(value);
 	}
 

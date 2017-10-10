@@ -9,7 +9,7 @@ public class ErrorReturnAction extends EndReturnAction {
 
 	private static ErrorReturnAction action;
 	
-	public static ErrorReturnAction getInstance() {
+	public static ErrorReturnAction build() {
 		if (action == null)
 			action = new ErrorReturnAction();
 		

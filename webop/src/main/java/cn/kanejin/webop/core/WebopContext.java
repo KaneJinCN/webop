@@ -3,9 +3,6 @@ package cn.kanejin.webop.core;
 import cn.kanejin.webop.core.cache.EhCacheManagerImpl;
 
 import javax.servlet.ServletContext;
-import java.util.Properties;
-
-import static cn.kanejin.commons.util.StringUtils.isEmpty;
 
 /**
  * @author Kane Jin
@@ -32,10 +29,12 @@ public class WebopContext {
         wc.interceptorMapping = new InterceptorMapping();
         wc.converterMapping = new ConverterMapping();
 
-        wc.configs = WebopConfigHelper.getDefaultConfigs();
+        wc.webopConfig = new WebopConfig();
     }
 
     private ServletContext servletContext;
+
+    private WebopConfig webopConfig;
 
     private WebopCacheManager cacheManager;
 
@@ -49,6 +48,10 @@ public class WebopContext {
 
     public ServletContext getServletContext() {
         return servletContext;
+    }
+
+    public WebopConfig getWebopConfig() {
+        return webopConfig;
     }
 
     public WebopCacheManager getCacheManager() {
@@ -69,23 +72,5 @@ public class WebopContext {
 
     public ConverterMapping getConverterMapping() {
         return converterMapping;
-    }
-
-    private Properties configs;
-
-    public void setConfig(String configName, String configValue) {
-        if (WebopConfigHelper.isSupportedConfig(configName))
-            configs.setProperty(configName, configValue);
-    }
-
-    public String getConfig(String configName) {
-
-        String config = configs.getProperty(configName);
-
-        if (isEmpty(config)) {
-            config = System.getProperty(configName);
-        }
-
-        return config;
     }
 }

@@ -1,7 +1,5 @@
 package cn.kanejin.webop.core;
 
-import cn.kanejin.commons.util.StringUtils;
-import cn.kanejin.webop.core.exception.IllegalConfigException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,29 +62,9 @@ class ResourceInjector {
 
     private Object lookupResource(Resource ann, Class<?> type) {
         if (resourceProvider == null) {
-            resourceProvider = createResourceProvider();
+            resourceProvider = WebopContext.get().getWebopConfig().getResourceProvider();
         }
 
         return resourceProvider.getResource(ann.name(), type);
-    }
-
-    private ResourceProvider createResourceProvider() {
-
-        String providerClass = WebopContext.get().getConfig("webop.resource.provider");
-
-        if (StringUtils.isBlank(providerClass)) {
-            throw new IllegalConfigException("Webop configuration 'webop.resource.provider' is required");
-        }
-
-        try {
-            ResourceProvider provider = (ResourceProvider) Class.forName(providerClass).newInstance();
-            provider.init(WebopContext.get().getServletContext());
-
-            return provider;
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            throw new IllegalConfigException(
-                    "Can't instantiate resource provider '" + providerClass + "' correctly." +
-                            " Check for webop configuration 'webop.resource.provider'.", e);
-        }
     }
 }

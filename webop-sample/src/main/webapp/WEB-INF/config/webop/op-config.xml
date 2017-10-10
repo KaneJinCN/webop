@@ -1,16 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <webop xmlns="http://www.kanejin.cn/schema/webop"
-	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xsi:schemaLocation="http://www.kanejin.cn/schema/webop http://www.kanejin.cn/schema/webop.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.kanejin.cn/schema/webop http://www.kanejin.cn/schema/webop-3.1.xsd">
 
-	<config>
-		<config-properties>
-			/WEB-INF/webop.properties
-			/WEB-INF/webop2.properties
-		</config-properties>
+    <config>
 
-		<config-entry key="webop.resource.provider"
-				value="cn.kanejin.webop.spring.BeanResourceProvider"/>
+        <charset>UTF-8</charset>
 
-	</config>
+        <view-type-default>jsp</view-type-default>
+
+        <jsp-renderer>
+            <content-type>text/html;charset=UTF-8</content-type>
+        </jsp-renderer>
+
+        <freemarker-renderer class="cn.kanejin.webop.freemarker.DefaultFreemarkerViewRenderer">
+            <content-type>text/html;charset=UTF-8</content-type>
+
+            <template-path>/WEB-INF/template</template-path>
+            <no-cache>true</no-cache>
+            <buffer-size>1000</buffer-size>
+            <exception-on-missing-template>false</exception-on-missing-template>
+            <meta-inf-tld-sources>webInfPerLibJars</meta-inf-tld-sources>
+            <classpath-tlds></classpath-tlds>
+
+            <settings>
+                <!--<props-file>/WEB-INF/freemarker.properties</props-file>-->
+                <props>
+                    <prop key="template_update_delay">0</prop>
+                    <prop key="localized_lookup">false</prop>
+                    <prop key="default_encoding">UTF-8</prop>
+                    <prop key="url_escaping_charset">UTF-8</prop>
+                    <prop key="date_format">yyyy-MM-dd</prop>
+                    <prop key="time_format">HH:mm:ss</prop>
+                    <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+                    <prop key="number_format">0.######</prop>
+                    <prop key="boolean_format">true,false</prop>
+                    <prop key="classic_compatible">true</prop>
+                    <prop key="whitespace_stripping">true</prop>
+                    <prop key="template_exception_handler">rethrow</prop>
+                </props>
+
+            </settings>
+
+        </freemarker-renderer>
+
+        <resource-provider class="cn.kanejin.webop.spring.BeanResourceProvider"/>
+
+    </config>
 </webop>

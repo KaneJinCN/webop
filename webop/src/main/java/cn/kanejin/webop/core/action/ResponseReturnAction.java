@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 
 public class ResponseReturnAction extends EndReturnAction {
-	public static ResponseReturnAction getInstance(String statusString) {
+	public static ResponseReturnAction build(String statusString) {
 		return new ResponseReturnAction(NumberUtils.toInt(statusString, 500));
 	}
 

@@ -11,7 +11,6 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
 /**
- * @version $Id: OperationEntityResolver.java 115 2016-03-15 06:34:36Z Kane $
  * @author Kane Jin
  */
 public class ConfigEntityResolver implements EntityResolver {

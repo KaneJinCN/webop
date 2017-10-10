@@ -10,7 +10,7 @@ import java.io.IOException;
 public class BackReturnAction extends EndReturnAction {
 	private static BackReturnAction action;
 	
-	public static BackReturnAction getInstance() {
+	public static BackReturnAction build() {
 		if (action == null)
 			action = new BackReturnAction();
 		

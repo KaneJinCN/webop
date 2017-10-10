@@ -9,7 +9,7 @@ import java.util.List;
 public class NextReturnAction extends ProcessReturnAction {
 	private static NextReturnAction action;
 	
-	public static NextReturnAction getInstance() {
+	public static NextReturnAction build() {
 		if (action == null)
 			action = new NextReturnAction();
 		
