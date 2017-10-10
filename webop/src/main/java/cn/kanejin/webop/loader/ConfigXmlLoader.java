@@ -55,6 +55,16 @@ public class ConfigXmlLoader {
 			if (files == null || files.length == 0)
 				continue;
 
+			// 把全部的config先加载
+			for (String file : files) {
+				try {
+					loadConfig(servletContext, file);
+				} catch (IOException | SAXException | ParserConfigurationException e) {
+					log.warn("Can't load config file: " + file, e);
+				}
+			}
+
+			// 然后再加载其它的xml文件
 			for (String file : files) {
 				try {
 					loadXml(servletContext, file);
@@ -85,9 +95,23 @@ public class ConfigXmlLoader {
 		}
 	}
 
+	private void loadConfig(ServletContext sc, String fileName) throws IOException, SAXException, ParserConfigurationException {
+		Document doc = loadDocFromFile(fileName);
+
+		NodeList nodes = doc.getDocumentElement().getChildNodes();
+
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Node node = nodes.item(i);
+			if (node.getNodeName().equals("config")) {
+				log.debug("Loading <config> from {}", fileName);
+
+				parseConfig(sc, node);
+			}
+		}
+	}
 
 	private void loadXml(ServletContext sc, String fileName) throws IOException, SAXException, ParserConfigurationException {
-		log.debug("Loading configurations from {}", fileName);
+		log.debug("Loading webop xml from {}", fileName);
 
 		Document doc = loadDocFromFile(fileName);
 		
@@ -100,13 +124,11 @@ public class ConfigXmlLoader {
 				loadOperations(node);
 			} else if (node.getNodeName().equals("interceptor")) {
 				loadInterceptors(node);
-			} else if (node.getNodeName().equals("config")) {
-				loadConfig(sc, node);
 			}
 		}
 	}
 
-	private void loadConfig(ServletContext sc, Node configNode) {
+	private void parseConfig(ServletContext sc, Node configNode) {
 		WebopConfig config = WebopContext.get().getWebopConfig();
 
 		NodeList nodes = configNode.getChildNodes();
