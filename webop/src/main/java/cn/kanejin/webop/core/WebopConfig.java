@@ -33,7 +33,6 @@ import javax.servlet.ServletContext;
 import java.util.Properties;
 
 import static cn.kanejin.commons.util.StringUtils.isNotBlank;
-import static cn.kanejin.commons.util.StringUtils.nullToEmpty;
 
 /**
  * @author Kane Jin

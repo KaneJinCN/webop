@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static cn.kanejin.commons.util.StringUtils.isNotEmpty;
+
 /**
  * @author Kane Jin
  */
@@ -28,6 +30,12 @@ public class DispatcherFilter extends OperationSupportFilter {
 								 HttpServletResponse res,
 								 FilterChain chain)
 			throws IOException, ServletException {
+
+		String encoding = WebopContext.get().getWebopConfig().getCharset();
+		if (isNotEmpty(encoding)) {
+			req.setCharacterEncoding(encoding);
+			res.setCharacterEncoding(encoding);
+		}
 
 		Operation op = WebopContext.get().getOperationMapping().get(req);
 

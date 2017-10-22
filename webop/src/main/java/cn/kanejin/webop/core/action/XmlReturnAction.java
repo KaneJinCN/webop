@@ -39,7 +39,6 @@ public class XmlReturnAction extends EndReturnAction {
 			throw new ServletException("xml data to return is null");
 
 		res.setContentType("text/xml");
-		res.setCharacterEncoding("UTF-8");
 
 		PrintWriter out = res.getWriter();
 		

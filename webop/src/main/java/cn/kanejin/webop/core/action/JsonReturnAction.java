@@ -29,7 +29,6 @@ public class JsonReturnAction extends JsonConvertAction {
 			res.setContentType("text/html");
 		else
 			res.setContentType("application/json");
-		res.setCharacterEncoding("UTF-8");
 
 		PrintWriter out = res.getWriter();
 		

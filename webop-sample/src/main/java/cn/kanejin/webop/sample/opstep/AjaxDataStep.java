@@ -24,7 +24,7 @@ public class AjaxDataStep implements InitializableStep {
 		Map<String, Object> obj = new HashMap<String, Object>();
 		obj.put("name", name);
 		obj.put("ok", Boolean.TRUE);
-		obj.put("word", "Hello");
+		obj.put("word", "你好");
 		obj.put("date", new Date());
 		context.setAttribute("ajaxData", obj);
 		

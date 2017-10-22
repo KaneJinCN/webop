@@ -95,7 +95,7 @@
 		<step id="stepToForwardPage"
 			class="cn.kanejin.webop.opstep.ForwardPage">
 			<return-action>
-				<if return="0"><text value="Hello World"/></if>
+				<if return="0"><text value="Hello World, 你好"/></if>
 				<else><error/></else>
 			</return-action>
 		</step>

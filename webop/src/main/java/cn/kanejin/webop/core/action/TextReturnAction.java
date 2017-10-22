@@ -35,7 +35,6 @@ public class TextReturnAction extends EndReturnAction {
 			res.setContentType("text/html");
 		else
 			res.setContentType("text/plain");
-		res.setCharacterEncoding("UTF-8");
 
 		PrintWriter out = res.getWriter();
 

@@ -30,7 +30,6 @@ public class ScriptReturnAction extends JsonConvertAction {
 			res.setContentType("text/html");
 		else
 			res.setContentType("application/x-javascript");
-		res.setCharacterEncoding("UTF-8");
 
 		PrintWriter out = res.getWriter();
 		
