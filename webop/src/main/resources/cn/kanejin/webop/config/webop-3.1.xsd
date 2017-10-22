@@ -276,8 +276,7 @@
             <xs:documentation>JSP页面渲染器配置</xs:documentation>
         </xs:annotation>
         <xs:all>
-            <xs:element name="prefix" type="xs:string" minOccurs="0"/>
-            <xs:element name="suffix" type="xs:string" minOccurs="0"/>
+            <xs:element name="view-path" type="xs:string" minOccurs="0"/>
             <xs:element name="content-type" type="xs:string" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
@@ -318,10 +317,8 @@
             <xs:documentation>Freemarker的渲染器</xs:documentation>
         </xs:annotation>
         <xs:all>
-            <xs:element name="prefix" type="xs:string" minOccurs="0"/>
-            <xs:element name="suffix" type="xs:string" minOccurs="0"/>
+            <xs:element name="view-path" type="xs:string" minOccurs="0"/>
             <xs:element name="content-type" type="xs:string" minOccurs="0"/>
-            <xs:element name="template-path" type="xs:string" minOccurs="0"/>
             <xs:element name="no-cache" type="xs:boolean" minOccurs="0"/>
             <xs:element name="buffer-size" type="xs:integer" minOccurs="0"/>
             <xs:element name="exception-on-missing-template" type="xs:boolean" minOccurs="0"/>

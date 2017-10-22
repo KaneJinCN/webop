@@ -42,11 +42,27 @@ public class DefaultJspViewRenderer extends AbstractViewRenderer {
                        HttpServletResponse response)
             throws ServletException, IOException {
 
-        String page = prefix + pageName + suffix;
+        String page = prependPath(pageName);
 
         if (isNotBlank(contentType))
             response.setContentType(contentType);
 
         servletContext.getRequestDispatcher(page).forward(request, response);
+    }
+
+    private String prependPath(String pageName) {
+        if (viewPath.endsWith("/")) {
+            if (pageName.startsWith("/")) {
+                return viewPath + pageName.substring(1);
+            } else {
+                return viewPath + pageName;
+            }
+        } else {
+            if (pageName.startsWith("/")) {
+                return viewPath + pageName;
+            } else {
+                return viewPath + "/" + pageName;
+            }
+        }
     }
 }

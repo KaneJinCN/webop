@@ -32,8 +32,7 @@ import javax.servlet.ServletContext;
 public abstract class AbstractViewRenderer implements ViewRenderer {
     protected ServletContext servletContext;
 
-    protected String prefix = "";
-    protected String suffix = "";
+    protected String viewPath = "";
 
     protected String contentType;
 
@@ -43,13 +42,8 @@ public abstract class AbstractViewRenderer implements ViewRenderer {
     }
 
     @Override
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
-
-    @Override
-    public void setSuffix(String suffix) {
-        this.suffix = suffix;
+    public void setViewPath(String viewPath) {
+        this.viewPath = viewPath;
     }
 
     @Override

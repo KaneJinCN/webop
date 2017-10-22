@@ -20,7 +20,7 @@
 		<step id="stepToForwardPage"
 			class="cn.kanejin.webop.opstep.ForwardPage">
 			<return-action>
-				<forward page="/jsp/sample/forward.jsp"/>
+				<forward page="forward.jsp"/>
 			</return-action>
 		</step>
 	</operation>
@@ -58,7 +58,7 @@
 		<step id="stepNext2"
 			class="cn.kanejin.webop.opstep.ForwardPage">
 			<return-action>
-				<if return="0"><forward page="/jsp/sample/next.jsp"/></if>
+				<if return="0"><forward page="next.jsp"/></if>
 				<else><error/></else>
 			</return-action>
 		</step>
@@ -80,7 +80,7 @@
 		<step id="stepNext2"
 			class="cn.kanejin.webop.opstep.ForwardPage">
 			<return-action>
-				<if return="0"><forward page="/jsp/sample/step.jsp"/></if>
+				<if return="0"><forward page="step.jsp"/></if>
 				<else><error/></else>
 			</return-action>
 		</step>
@@ -267,7 +267,7 @@
 		<step id="stepToOperation"
 			class="cn.kanejin.webop.opstep.ForwardPage">
 			<return-action>
-				<if return="0"><forward page="/jsp/sample/operation.jsp"/></if>
+				<if return="0"><forward page="operation.jsp"/></if>
 				<else><error/></else>
 			</return-action>
 		</step>
@@ -282,11 +282,11 @@
 		<step id="stepReturn"
 			class="cn.kanejin.webop.sample.opstep.ReturnActionStep">
 			<return-action>
-				<if return="0"><forward page="/jsp/sample/return0.jsp"/></if>
-				<if return="1"><forward page="/jsp/sample/return1.jsp"/></if>
-				<if return="2"><forward page="/jsp/sample/return2.jsp"/></if>
-				<if return="3"><forward page="/jsp/sample/return3.jsp"/></if>
-				<if return="4"><forward page="/jsp/sample/return4.jsp"/></if>
+				<if return="0"><forward page="return0.jsp"/></if>
+				<if return="1"><forward page="return1.jsp"/></if>
+				<if return="2"><forward page="return2.jsp"/></if>
+				<if return="3"><forward page="return3.jsp"/></if>
+				<if return="4"><forward page="return4.jsp"/></if>
 				<else><error/></else>
 			</return-action>
 		</step>
@@ -301,11 +301,11 @@
 		<step id="stepReturn"
 			class="cn.kanejin.webop.sample.opstep.PathVarStep">
 			<return-action>
-				<if return="0"><forward page="/jsp/sample/return0.jsp"/></if>
-				<if return="1"><forward page="/jsp/sample/return1.jsp"/></if>
-				<if return="2"><forward page="/jsp/sample/return2.jsp"/></if>
-				<if return="3"><forward page="/jsp/sample/return3.jsp"/></if>
-				<if return="4"><forward page="/jsp/sample/return4.jsp"/></if>
+				<if return="0"><forward page="return0.jsp"/></if>
+				<if return="1"><forward page="return1.jsp"/></if>
+				<if return="2"><forward page="return2.jsp"/></if>
+				<if return="3"><forward page="return3.jsp"/></if>
+				<if return="4"><forward page="return4.jsp"/></if>
 				<else><error/></else>
 			</return-action>
 		</step>

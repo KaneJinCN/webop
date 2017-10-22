@@ -112,7 +112,7 @@ public class WebopConfig {
     }
 
     public void setJspViewRenderer(ServletContext servletContext,
-                                   String prefix, String suffix, String contentType) {
+                                   String viewPath, String contentType) {
 
         if (this.jspViewRenderer != null) {
             throw new IllegalConfigException("Configuration <jsp-renderer> has been set already");
@@ -121,16 +121,15 @@ public class WebopConfig {
         jspViewRenderer = new DefaultJspViewRenderer();
         jspViewRenderer.setServletContext(servletContext);
 
-        jspViewRenderer.setPrefix(nullToEmpty(prefix));
-        jspViewRenderer.setSuffix(nullToEmpty(suffix));
+        jspViewRenderer.setViewPath(nullTo(viewPath, "/"));
         jspViewRenderer.setContentType(nullTo(contentType, DEFAULT_CONTENT_TYPE));
 
     }
 
     public void setFreemarkerViewRenderer(ServletContext servletContext,
                                           String rendererClass,
-                                          String prefix, String suffix, String contentType,
-                                          String templatePath, Boolean noCache, Integer bufferSize,
+                                          String viewPath, String contentType,
+                                          Boolean noCache, Integer bufferSize,
                                           Boolean exceptionOnMissingTemplate,
                                           String metaInfTldSources, String classpathTlds,
                                           Properties settings) {
@@ -145,11 +144,9 @@ public class WebopConfig {
             FreemarkerViewRenderer renderer = (FreemarkerViewRenderer) Class.forName(rendererClass).newInstance();
             renderer.setServletContext(servletContext);
 
-            renderer.setPrefix(nullToEmpty(prefix));
-            renderer.setSuffix(nullToEmpty(suffix));
             renderer.setContentType(nullTo(contentType, DEFAULT_CONTENT_TYPE));
 
-            renderer.setTemplatePath(nullTo(templatePath, "/"));
+            renderer.setViewPath(nullTo(viewPath, "/"));
             renderer.setNoCache(nullTo(noCache, true));
             renderer.setBufferSize(bufferSize);
             renderer.setExceptionOnMissingTemplate(nullTo(exceptionOnMissingTemplate, true));

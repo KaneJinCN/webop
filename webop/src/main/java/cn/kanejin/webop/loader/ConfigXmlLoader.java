@@ -90,7 +90,7 @@ public class ConfigXmlLoader {
 		}
 
 		if (config.getJspViewRenderer() == null) {
-			config.setJspViewRenderer(servletContext, null, null, null);
+			config.setJspViewRenderer(servletContext, null, null);
 		}
 
 		if (config.getFreemarkerViewRenderer() == null) {
@@ -98,8 +98,7 @@ public class ConfigXmlLoader {
 					servletContext,
 					null, null, null,
 					null, null, null,
-					null, null, null,
-					null, null);
+					null, null, null);
 		}
 
 		if (config.getResourceProvider() == null) {
@@ -192,23 +191,20 @@ public class ConfigXmlLoader {
 
 		NodeList nodeList = node.getChildNodes();
 
-		String prefix = null;
-		String suffix = null;
+		String viewPath = null;
 		String contentType = null;
 
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node n = nodeList.item(i);
 
-			if (n.getNodeName().equals("prefix")) {
-				prefix = n.getTextContent();
-			} else if (n.getNodeName().equals("suffix")) {
-				suffix = n.getTextContent();
+			if (n.getNodeName().equals("view-path")) {
+				viewPath = n.getTextContent();
 			} else if (n.getNodeName().equals("content-type")) {
 				contentType = n.getTextContent();
 			}
 		}
 
-		config.setJspViewRenderer(sc, prefix, suffix, contentType);
+		config.setJspViewRenderer(sc, viewPath, contentType);
 	}
 
 	private void parseFreemarkerRenderer(ServletContext sc, WebopConfig config, Node node) {
@@ -217,10 +213,8 @@ public class ConfigXmlLoader {
 
 		String renderClass = null;
 
-		String prefix = null;
-		String suffix = null;
+		String viewPath = null;
 		String contentType = null;
-		String templatePath = null;
 		Boolean noCache = null;
 		Integer bufferSize = null;
 		Boolean exceptionOnMissingTemplate = null;
@@ -236,14 +230,10 @@ public class ConfigXmlLoader {
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node n = nodeList.item(i);
 
-			if (n.getNodeName().equals("prefix")) {
-				prefix = n.getTextContent();
-			} else if (n.getNodeName().equals("suffix")) {
-				suffix = n.getTextContent();
+			if (n.getNodeName().equals("view-path")) {
+				viewPath = n.getTextContent();
 			} else if (n.getNodeName().equals("content-type")) {
 				contentType = n.getTextContent();
-			} else if (n.getNodeName().equals("template-path")) {
-				templatePath = n.getTextContent();
 			} else if (n.getNodeName().equals("no-cache")) {
 				noCache = Boolean.valueOf(n.getTextContent());
 			} else if (n.getNodeName().equals("buffer-size")) {
@@ -261,8 +251,8 @@ public class ConfigXmlLoader {
 
 		config.setFreemarkerViewRenderer(
 				sc, renderClass,
-				prefix, suffix, contentType,
-				templatePath,noCache,bufferSize, exceptionOnMissingTemplate,
+				viewPath, contentType,
+				noCache, bufferSize, exceptionOnMissingTemplate,
 				metaInfTldSources, classpathTlds, settings);
 	}
 

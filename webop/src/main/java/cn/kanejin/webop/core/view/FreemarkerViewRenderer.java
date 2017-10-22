@@ -31,8 +31,6 @@ import java.util.Properties;
  */
 public interface FreemarkerViewRenderer extends ViewRenderer {
 
-    void setTemplatePath(String templatePath);
-
     void setNoCache(boolean noCache);
 
     void setBufferSize(Integer bufferSize);

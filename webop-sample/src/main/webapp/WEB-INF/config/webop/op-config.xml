@@ -11,12 +11,13 @@
 
         <jsp-renderer>
             <content-type>text/html;charset=UTF-8</content-type>
+            <view-path>/jsp/sample</view-path>
         </jsp-renderer>
 
         <freemarker-renderer class="cn.kanejin.webop.freemarker.DefaultFreemarkerViewRenderer">
             <content-type>text/html;charset=UTF-8</content-type>
+            <view-path>/WEB-INF/template</view-path>
 
-            <template-path>/WEB-INF/template</template-path>
             <no-cache>true</no-cache>
             <buffer-size>1000</buffer-size>
             <exception-on-missing-template>false</exception-on-missing-template>

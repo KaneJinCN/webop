@@ -88,9 +88,8 @@ public abstract class AbstractFreemarkerViewRenderer extends AbstractViewRendere
         createConfiguration(settings);
     }
 
-
     @Override
-    public void setTemplatePath(String templatePath) {
+    public void setViewPath(String templatePath) {
         this.templatePath = templatePath;
     }
 

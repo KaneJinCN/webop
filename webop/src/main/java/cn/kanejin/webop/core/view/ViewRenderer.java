@@ -42,21 +42,15 @@ public interface ViewRenderer {
 
     /**
      *
-     * @param prefix
-     */
-    void setPrefix(String prefix);
-
-    /**
-     *
-     * @param suffix
-     */
-    void setSuffix(String suffix);
-
-    /**
-     *
      * @param contentType
      */
     void setContentType(String contentType);
+
+    /**
+     *
+     * @param viewPath
+     */
+    void setViewPath(String viewPath);
 
     /**
      *
