@@ -172,23 +172,20 @@
         <xs:attribute name="ref" type="xs:string" use="required"/>
     </xs:complexType>
 
-    <xs:simpleType name="timeUnitType">
+    <xs:simpleType name="expiryTimeType">
+        <xs:annotation>
+            <xs:documentation>
+                ms: millis
+                s:  seconds(default)
+                m:  minutes
+                h:  hours
+                d:  days
+            </xs:documentation>
+        </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="millis"/>
-            <xs:enumeration value="seconds"/>
-            <xs:enumeration value="minutes"/>
-            <xs:enumeration value="hours"/>
-            <xs:enumeration value="days"/>
+            <xs:pattern value="\d+(ms|s|m|h|d)?"/>
         </xs:restriction>
     </xs:simpleType>
-
-    <xs:complexType name="expiryTimeType">
-        <xs:simpleContent>
-            <xs:extension base="xs:positiveInteger">
-                <xs:attribute name="unit" type="timeUnitType" default="seconds"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
 
     <xs:complexType name="eternalType"/>
 
@@ -239,6 +236,36 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:simpleType name="maxSizeType">
+        <xs:annotation>
+            <xs:documentation>
+                K: KB
+                M: MB
+                G: GB
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\d+[kKmMgG]?"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="operationMultipartType">
+        <xs:annotation>
+            <xs:documentation>
+
+                定义二进制上传
+
+                Used in: operation
+
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:all>
+            <xs:element name="max-size" type="maxSizeType" minOccurs="0"/>
+        </xs:all>
+
+    </xs:complexType>
+
     <xs:simpleType name="httpMethodType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="GET"/>
@@ -254,6 +281,7 @@
         <xs:sequence>
             <xs:element name="description" type="xs:string" minOccurs="0"/>
             <xs:element name="cache" type="operationCacheType" minOccurs="0"/>
+            <xs:element name="multipart" type="operationMultipartType" minOccurs="0"/>
             <xs:element name="interceptor" type="operationInterceptorType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="step" type="stepType" maxOccurs="unbounded"/>
         </xs:sequence>

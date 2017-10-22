@@ -24,7 +24,7 @@ webop是一个java webapp的MVC框架
         </description>
         <cache>
             <expiry>
-                <ttl unit="minutes">30</ttl>
+                <ttl>30m</ttl>
             </expiry>
             <key-field>name</key-field>
             <key-field>age</key-field>

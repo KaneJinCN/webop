@@ -356,7 +356,9 @@ public class ConfigXmlLoader {
 		// TODO 这里可以添加operation的检验
 
 		operationMapping.put(opUri, opMethods,
-				new OperationDef(opUri, opName, parseCache(opNode), parseInterceptors(opNode), parseSteps(opNode)));
+				new OperationDef(opUri, opName,
+						parseCache(opNode), parseMultipartDef(opNode),
+						parseSteps(opNode), parseInterceptors(opNode)));
 	}
 
 	private void loadInterceptors(Node itNode) {
@@ -451,6 +453,35 @@ public class ConfigXmlLoader {
 		return null;
 	}
 
+	private MultipartDef parseMultipartDef(Node opNode) {
+		NodeList childNodes = opNode.getChildNodes();
+
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node childNode = childNodes.item(i);
+
+			if (childNode.getNodeName().equals("multipart")) {
+
+				return new MultipartDef(parseMaxSize(childNode));
+			}
+		}
+
+		return null;
+	}
+
+	private String parseMaxSize(Node multipartNode) {
+		NodeList childNodes = multipartNode.getChildNodes();
+
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node childNode = childNodes.item(i);
+
+			if (childNode.getNodeName().equals("max-size")) {
+				return childNode.getTextContent();
+			}
+		}
+
+		return "2M";
+	}
+
 	private CacheExpiryDef parseExpiry(Node cacheNode) {
 		NodeList childNodes = cacheNode.getChildNodes();
 
@@ -463,18 +494,16 @@ public class ConfigXmlLoader {
 
 				String type = expiryNode.getNodeName();
 
-				String unit = null;
-				Long time = null;
+				String time = null;
 				if (type.equals("ttl") || type.equals("tti")) {
-					unit = expiryNode.getAttributes().getNamedItem("unit").getNodeValue();
-					time = NumberUtils.toLong(expiryNode.getTextContent(), 5L);
+					time = expiryNode.getTextContent();
 				}
 
-				return new CacheExpiryDef(type, unit, time);
+				return new CacheExpiryDef(type, time);
 			}
 		}
 
-		return new CacheExpiryDef("ttl", "minutes", 5L);
+		return new CacheExpiryDef("ttl", "5m");
 	}
 
 	private String[] parseKeyFields(Node cacheNode) {

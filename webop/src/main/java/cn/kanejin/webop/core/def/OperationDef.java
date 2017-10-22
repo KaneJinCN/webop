@@ -13,12 +13,15 @@ public class OperationDef implements Serializable {
     private final List<OperationStepDef> opSteps;
 
     private final CacheDef cacheDef;
+    private final MultipartDef multipartDef;
 
     public OperationDef(
-            String uri, String name, CacheDef cacheDef,
-            List<String> interceptorRefs, List<OperationStepDef> opSteps) {
+            String uri, String name,
+            CacheDef cacheDef, MultipartDef multipartDef,
+            List<OperationStepDef> opSteps, List<String> interceptorRefs) {
         this.uri = uri;
         this.name = name;
+        this.multipartDef = multipartDef;
         this.opSteps = opSteps;
         this.interceptorRefs = interceptorRefs;
         this.cacheDef = cacheDef;
@@ -46,5 +49,9 @@ public class OperationDef implements Serializable {
 
     public CacheDef getCacheDef() {
         return cacheDef;
+    }
+
+    public MultipartDef getMultipartDef() {
+        return multipartDef;
     }
 }

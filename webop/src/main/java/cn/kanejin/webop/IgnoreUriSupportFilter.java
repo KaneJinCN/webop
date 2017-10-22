@@ -40,11 +40,9 @@ public abstract class IgnoreUriSupportFilter extends ServletContextSupportFilter
 		if (ignoreURI(req)) {
 			log.trace("Ignore request[{}]", req.getRequestURI());
 			chain.doFilter(req, res);
-
-			return ;
+		} else {
+			doFilterInternal(req, res, chain);
 		}
-
-		doFilterInternal(req, res, chain);
 	}
 
 	protected abstract void doFilterInternal(

@@ -10,8 +10,10 @@ import java.io.IOException;
 import java.util.Locale;
 
 /**
+ * @deprecated 直接使用DispatcherFilter并在operation中定义&lt;multipart&gt;配置
  * @author Kane Jin
  */
+@Deprecated
 public class MultipartFilter implements Filter {
 	private static final Logger log = LoggerFactory.getLogger(MultipartFilter.class);
 	
@@ -58,12 +60,12 @@ public class MultipartFilter implements Filter {
 						&& (contentType.toLowerCase(Locale.ENGLISH)
 								.startsWith("multipart/form-data"))) {
 					if (log.isDebugEnabled()) {
-						log.debug("Wrapping {} with ContentType=\"{}\" into MultipartFormdataRequest",
+						log.debug("Wrapping {} with ContentType=\"{}\" into MultipartRequest",
 								req.getClass().getName(), contentType);
 					}
 
 					wrapper = new MultipartRequestWrapper(
-							(HttpServletRequest) req, this.repositoryPath,
+							(HttpServletRequest) req, null, this.repositoryPath,
 							this.maxSize);
 				}
 			}

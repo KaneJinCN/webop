@@ -25,6 +25,7 @@
 package cn.kanejin.webop.core;
 
 import cn.kanejin.webop.core.def.CacheDef;
+import cn.kanejin.webop.core.def.MultipartDef;
 import cn.kanejin.webop.core.def.OperationDef;
 import cn.kanejin.webop.core.def.OperationStepDef;
 import cn.kanejin.webop.core.exception.OperationException;
@@ -77,6 +78,10 @@ public class Operation implements Serializable {
 
 	public CacheDef getCacheDef() {
 		return operationDef.getCacheDef();
+	}
+
+	public MultipartDef getMultipartDef() {
+		return operationDef.getMultipartDef();
 	}
 
 	public void execute(OperationContext context) throws ServletException, IOException {

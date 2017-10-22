@@ -13,8 +13,9 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
+import static cn.kanejin.commons.util.StringUtils.isBlank;
+
 /**
- * @version $Id: MultipartFormdataRequest.java 115 2016-03-15 06:34:36Z Kane $
  * @author Kane Jin
  */
 public class MultipartRequestWrapper extends HttpServletRequestWrapper {
@@ -23,33 +24,46 @@ public class MultipartRequestWrapper extends HttpServletRequestWrapper {
 	private Map<String, String[]> parameters;
 	private Map<String, FileItem> fileItems;
 
-	public MultipartRequestWrapper(HttpServletRequest request) {
-		this(request, System.getProperty("java.io.tmpdir"), 1024*1024);
+	public MultipartRequestWrapper(HttpServletRequest request, String encoding) {
+		this(request, encoding, System.getProperty("java.io.tmpdir"), 1024*1024);
+	}
+
+	public MultipartRequestWrapper(HttpServletRequest request, String encoding, long maxSize) {
+		this(request, encoding, System.getProperty("java.io.tmpdir"), maxSize);
 	}
 
 	public MultipartRequestWrapper(HttpServletRequest request,
+                                   String encoding,
                                    String repositoryPath, long maxSize) {
 		super(request);
-		init(request, repositoryPath, maxSize);
+		init(request, encoding, repositoryPath, maxSize);
 	}
 
-	private void init(HttpServletRequest request, String repositoryPath,
+	private void init(HttpServletRequest request, String encoding, String repositoryPath,
 			long maxSize) {
-		log.debug("Initializing MultipartFormdataRequest with repositoryPath : {}", repositoryPath);
+		log.debug("Initializing MultipartRequest with repositoryPath : {}", repositoryPath);
 	    if (!ServletFileUpload.isMultipartContent(request)) {
 	        throw new RuntimeException(
 	        	"ContentType is not multipart/form-data but '" + request.getContentType() + "'");
 	    }
-		this.parameters = new HashMap<String, String[]>();
-		this.fileItems = new HashMap<String, FileItem>();
+		this.parameters = new HashMap<>();
+		this.fileItems = new HashMap<>();
 		DiskFileItemFactory factory = new DiskFileItemFactory();
 
 		factory.setRepository(new File(repositoryPath));
 
 		ServletFileUpload upload = new ServletFileUpload(factory);
 
+		String charset = encoding;
+		if (isBlank(charset)) {
+			charset = request.getCharacterEncoding();
+		}
+		if (isBlank(charset)) {
+			charset = "UTF-8";
+		}
+
 		upload.setSizeMax(maxSize);
-		upload.setHeaderEncoding("UTF-8");
+		upload.setHeaderEncoding(charset);
 
 		List<FileItem> itemList;
 		try {
@@ -66,14 +80,14 @@ public class MultipartRequestWrapper extends HttpServletRequestWrapper {
 				if (inStock == null) {
 					String[] values;
 					try {
-						values = new String[] { item.getString("utf-8") };
+						values = new String[] { item.getString(charset) };
 					} catch (UnsupportedEncodingException e) {
 						log.error(e.toString());
 						values = new String[] { item.getString() };
 					}
 					this.parameters.put(key, values);
 
-					log.debug("Extracting Paramter : [{}]=[{}]", key, values);
+					log.debug("Extracting Parameter : [{}]=[{}]", key, values);
 				} else {
 					String[] values = new String[inStock.length + 1];
 					System.arraycopy(inStock, 0, values, 0, inStock.length);
@@ -84,7 +98,7 @@ public class MultipartRequestWrapper extends HttpServletRequestWrapper {
 						values[inStock.length] = item.getString();
 					}
 					this.parameters.put(key, values);
-					log.debug("Extracting Paramter : [{}]=[{}]", key, values);
+					log.debug("Extracting Parameter : [{}]=[{}]", key, values);
 				}
 			} else {
 				this.fileItems.put(key, item);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <webop xmlns="http://www.kanejin.cn/schema/webop"
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xsi:schemaLocation="http://www.kanejin.cn/schema/webop http://www.kanejin.cn/schema/webop.xsd">
+	   xsi:schemaLocation="http://www.kanejin.cn/schema/webop http://www.kanejin.cn/schema/webop-3.1.xsd">
 
 	<operation uri="/sample/forward" name="Forward Sample" method="GET POST">
 		<description>
@@ -11,7 +11,7 @@
 		</description>
 		<cache>
 			<expiry>
-				<ttl>5</ttl>
+				<ttl>5s</ttl>
 			</expiry>
 			<key-field>name</key-field>
 		</cache>
@@ -327,7 +327,28 @@
 		</step>
 
 	</operation>
-	
+
+	<operation uri="/sample/multipart" method="GET">
+		<step id="toUpload" class="cn.kanejin.webop.opstep.ForwardPage">
+			<return-action>
+				<if return="0"><forward page="upload_avatar.ftl" type="freemarker"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+
+	<operation uri="/sample/multipart" method="POST">
+		<multipart>
+			<max-size>1M</max-size>
+		</multipart>
+		<step id="firstStep" class="cn.kanejin.webop.sample.opstep.UploadFile">
+			<return-action>
+				<if return="0"><text value="上传成功"/></if>
+				<else><error/></else>
+			</return-action>
+		</step>
+	</operation>
+
 	<operation uri="/sample/freemarker">
 		<step id="firstStep" class="cn.kanejin.webop.sample.opstep.FreemarkerStep">
 			<return-action>
@@ -336,5 +357,5 @@
 			</return-action>
 		</step>
 	</operation>
-	
+
 </webop>
