@@ -23,8 +23,6 @@ import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -50,32 +48,39 @@ public class ConfigXmlLoader {
 		if (locations == null || locations.length == 0)
 			return;
 
-		for (String location : locations) {
-			String[] files = parseXmlLocations(servletContext, location);
+		List<String> files = new LinkedList<>();
+		Arrays.stream(locations).forEach(
+		        location -> {
+                    String[] fs = parseXmlLocations(servletContext, location);
 
-			if (files == null || files.length == 0)
-				continue;
+                    if (fs != null && fs.length > 0) {
+                        for (String f : fs) files.add(f);
+                    }
+                }
+        );
 
-			// 把全部的config先加载
-			for (String file : files) {
-				try {
-					loadConfig(servletContext, file);
-				} catch (IOException | SAXException | ParserConfigurationException e) {
-					log.warn("Can't load config file: " + file, e);
-				}
+        // 把全部的config先加载
+        files.stream().forEach(
+                file -> {
+                    try {
+                        loadConfig(servletContext, file);
+                    } catch (IOException | SAXException | ParserConfigurationException e) {
+                        log.warn("Can't load config file: " + file, e);
+                    }
+                }
+        );
+        ensureConfigLoaded(servletContext);
 
-				ensureConfigLoaded(servletContext);
-			}
-
-			// 然后再加载其它的xml文件
-			for (String file : files) {
-				try {
-					loadXml(servletContext, file);
-				} catch (IOException | SAXException | ParserConfigurationException e) {
-					log.warn("Can't load xml file: " + file, e);
-				}
-			}
-		}
+        // 然后再加载其它的xml文件
+        files.stream().forEach(
+                file -> {
+                    try {
+                        loadXml(servletContext, file);
+                    } catch (IOException | SAXException | ParserConfigurationException e) {
+                        log.warn("Can't load xml file: " + file, e);
+                    }
+                }
+        );
 	}
 
 	private void ensureConfigLoaded(ServletContext servletContext) {

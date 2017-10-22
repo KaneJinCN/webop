@@ -36,7 +36,7 @@ public class ConfigEntityResolver implements EntityResolver {
 
 	public InputSource resolveEntity(String publicId, String systemId)
 			throws IOException {
-		log.debug("Trying to resolve XML entity with public id [{}] and system id [{}]",
+		log.trace("Trying to resolve XML entity with public id [{}] and system id [{}]",
 				publicId, systemId);
 
 		if (systemId != null) {
@@ -46,7 +46,7 @@ public class ConfigEntityResolver implements EntityResolver {
 						getClass().getClassLoader().getResourceAsStream(resLocation));
 				source.setPublicId(publicId);
 				source.setSystemId(systemId);
-				log.debug("Found XML schema [{}] in : {}", systemId, resLocation);
+				log.trace("Found XML schema [{}] in : {}", systemId, resLocation);
 				return source;
 			}
 		}
@@ -59,13 +59,13 @@ public class ConfigEntityResolver implements EntityResolver {
 
 		synchronized (this) {
 			if (schemaMappings == null) {
-				log.debug("Loading schema mappings from [{}]", schemaMappingsLocation);
+				log.trace("Loading schema mappings from [{}]", schemaMappingsLocation);
 				try {
 					Properties mappings = new Properties();
 					mappings.load(
 							getClass().getClassLoader().getResourceAsStream(schemaMappingsLocation));
 
-					log.debug("Loaded schema mappings: {}", mappings);
+					log.trace("Loaded schema mappings: {}", mappings);
 
 					Map<String, String> tempSchemaMappings = new ConcurrentHashMap<String, String>();
 
